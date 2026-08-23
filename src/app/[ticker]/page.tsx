@@ -146,7 +146,7 @@ function AiPanel({ aiModels }: { aiModels: { model: string; recommendation: stri
               <span className="font-mono text-sm font-medium text-foreground">{m.display}</span>
             </div>
             {data ? (
-              <span className={`font-mono text-base font-black ${data.recommendation === "BUY" ? "text-green-600" : "text-red-500"}`}>
+              <span className={`font-mono text-base font-black ${data.recommendation === "BULLISH" ? "text-green-600" : "text-red-500"}`}>
                 {data.recommendation}
               </span>
             ) : (
@@ -167,7 +167,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
   const [locked, setLocked] = useState(false);
   const [up, setUp] = useState(0);
   const [down, setDown] = useState(0);
-  const [aiCall, setAiCall] = useState<"BUY" | "SELL" | null>(null);
+  const [aiCall, setAiCall] = useState<"BULLISH" | "BEARISH" | null>(null);
   const [aiModels, setAiModels] = useState<{ model: string; recommendation: string; reasoning: string }[]>([]);
   const [showAiPanel, setShowAiPanel] = useState(false);
   const predictionDate = nextTradingDay(eodDate);
@@ -211,10 +211,10 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
         if (data.models && data.models.length > 0) {
           setAiModels(data.models);
           // Majority vote
-          const buys = data.models.filter((m: { recommendation: string }) => m.recommendation === "BUY").length;
-          const sells = data.models.filter((m: { recommendation: string }) => m.recommendation === "SELL").length;
+          const buys = data.models.filter((m: { recommendation: string }) => m.recommendation === "BULLISH").length;
+          const sells = data.models.filter((m: { recommendation: string }) => m.recommendation === "BEARISH").length;
           if (buys !== sells) {
-            setAiCall(buys > sells ? "BUY" : "SELL");
+            setAiCall(buys > sells ? "BULLISH" : "BEARISH");
           } else {
             // Tie — fall back to GPT
             const gpt = data.models.find((m: { model: string }) => m.model.includes("gpt"));
@@ -296,8 +296,8 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
                     <div className="text-2xl font-black tracking-tight">{formatDate(predictionDate)}</div>
                   </div>
                   <div className="mb-4">
-                    <span className={`text-6xl font-black tracking-tight leading-none ${(aiCall || (upPct >= 50 ? "BUY" : "SELL")) === "BUY" ? "text-green-500" : "text-red-400"}`}>
-                      {aiCall || (upPct >= 50 ? "BUY" : "SELL")}
+                    <span className={`text-6xl font-black tracking-tight leading-none ${(aiCall || (upPct >= 50 ? "BULLISH" : "BEARISH")) === "BULLISH" ? "text-green-500" : "text-red-400"}`}>
+                      {aiCall || (upPct >= 50 ? "BULLISH" : "BEARISH")}
                     </span>
                   </div>
                   <div>
@@ -328,7 +328,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
                   {aiModels.map((m) => (
                     <div key={m.model} className="flex items-center justify-between px-5 py-4 border-b border-foreground/10 last:border-b-0">
                       <span className="font-mono text-sm font-medium text-foreground">{m.model}</span>
-                      <span className={`font-mono text-base font-black ${m.recommendation === "BUY" ? "text-green-600" : "text-red-500"}`}>
+                      <span className={`font-mono text-base font-black ${m.recommendation === "BULLISH" ? "text-green-600" : "text-red-500"}`}>
                         {m.recommendation}
                       </span>
                     </div>
@@ -444,8 +444,8 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
               </div>
 
               <div className="mb-6">
-                <span className={`text-8xl font-black tracking-tight leading-none ${(aiCall || (upPct >= 50 ? "BUY" : "SELL")) === "BUY" ? "text-green-500" : "text-red-400"}`}>
-                  {aiCall || (upPct >= 50 ? "BUY" : "SELL")}
+                <span className={`text-8xl font-black tracking-tight leading-none ${(aiCall || (upPct >= 50 ? "BULLISH" : "BEARISH")) === "BULLISH" ? "text-green-500" : "text-red-400"}`}>
+                  {aiCall || (upPct >= 50 ? "BULLISH" : "BEARISH")}
                 </span>
               </div>
 

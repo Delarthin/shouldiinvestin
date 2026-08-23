@@ -70,7 +70,7 @@ export default async function Image() {
             marginTop: 30,
           }}
         >
-          Daily AI-powered BUY/SELL predictions
+          Daily AI-powered BULLISH/BEARISH predictions
         </div>
       </div>
     ),

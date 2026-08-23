@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ ticker: s
     return { title: "Unknown Ticker" };
   }
 
-  const title = `Should I Invest in ${symbol}? | BUY or SELL Today`;
+  const title = `Should I Invest in ${symbol}? | BULLISH or BEARISH Today`;
   const desc = `Should you invest in ${symbol} today? See the crowd's prediction and lock in your own forecast for ${info.description}.`;
 
   return {
@@ -44,7 +44,7 @@ export default async function TickerLayout({ children, params }: { children: Rea
     "@type": "WebApplication",
     name: `Should I Invest In ${symbol}?`,
     url: `https://www.shouldiiinvestin.com/${symbol}`,
-    description: `Daily BUY/SELL predictions for ${symbol} (${info.description}) powered by crowd forecasting.`,
+    description: `Daily BULLISH/BEARISH predictions for ${symbol} (${info.description}) powered by crowd forecasting.`,
     applicationCategory: "FinanceApplication",
     operatingSystem: "Any",
     offers: {

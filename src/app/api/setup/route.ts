@@ -26,7 +26,7 @@ export async function GET() {
         id SERIAL PRIMARY KEY,
         ticker VARCHAR(10) NOT NULL DEFAULT 'SPY',
         eod_date DATE NOT NULL,
-        recommendation VARCHAR(4) NOT NULL CHECK (recommendation IN ('BUY', 'SELL')),
+        recommendation VARCHAR(7) NOT NULL CHECK (recommendation IN ('BULLISH', 'BEARISH')),
         reasoning TEXT NOT NULL,
         close_price DECIMAL(10, 2) NOT NULL,
         generated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

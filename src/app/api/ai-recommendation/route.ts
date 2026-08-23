@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
         messages: [
           {
             role: "user",
-            content: `${marketSummary}\n\n${symbol} closed at $${tickerData.close} (${tickerData.changePct >= 0 ? "+" : ""}${tickerData.changePct}%). Reply with only BUY or SELL for ${symbol} next trading day.`,
+            content: `${marketSummary}\n\n${symbol} closed at $${tickerData.close} (${tickerData.changePct >= 0 ? "+" : ""}${tickerData.changePct}%). Reply with only BULLISH or BEARISH for ${symbol} next trading day.`,
           },
         ],
         temperature: 0.3,
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
       });
 
       const content = completion.choices[0]?.message?.content?.trim().toUpperCase() || "";
-      const recommendation = content.includes("BUY") ? "BUY" : "SELL";
+      const recommendation = content.includes("BULLISH") ? "BULLISH" : "BEARISH";
 
       await sql`
         INSERT INTO ai_recommendations (ticker, eod_date, recommendation, reasoning, close_price, model)
