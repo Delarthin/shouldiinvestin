@@ -200,11 +200,6 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
               </span>
             </div>
 
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted lg:block hidden">
-              Predictions are scored against end-of-day closing prices.
-              Market closes at 4:00 PM ET, Monday through Friday. Data updates daily after close.
-            </p>
-
             {/* Call of the Day card - mobile only */}
             <div className="mt-8 lg:hidden">
               <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
@@ -230,6 +225,11 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
                 </div>
               </div>
             </div>
+
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted">
+              Predictions are scored against end-of-day closing prices.
+              Market closes at 4:00 PM ET, Monday through Friday. Data updates daily after close.
+            </p>
 
             {/* Simplified UP / DOWN prediction */}
             <div id="prediction" className="mt-10 max-w-md">
