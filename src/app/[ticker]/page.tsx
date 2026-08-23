@@ -363,7 +363,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
           </div>
 
           {/* Right column - Call of the Day card (desktop only) */}
-          <div className="relative hidden lg:flex items-center justify-center">
+          <div className="relative hidden lg:flex items-start justify-center lg:sticky lg:top-16 lg:self-start">
             <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
               <div className="p-10 flex-1">
               <div className="mb-6">
