@@ -31,6 +31,7 @@ export async function GET() {
     return Response.json({ success: true, message: "Database initialized" });
   } catch (error) {
     console.error("Setup error:", error);
-    return Response.json({ error: "Setup failed" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return Response.json({ error: "Setup failed", detail: message }, { status: 500 });
   }
 }
