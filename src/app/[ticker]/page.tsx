@@ -119,13 +119,7 @@ function ModelLogo({ model }: { model: string }) {
   }
   if (model.includes("claude")) {
     return (
-      <svg width="24" height="24" viewBox="0 0 256 256" fill="none" className="shrink-0">
-        <g transform="translate(128,128)">
-          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
-            <rect key={angle} x="-8" y="-55" width="16" height="50" rx="7" fill="#D4795C" transform={`rotate(${angle}) translate(0, -45)`} />
-          ))}
-        </g>
-      </svg>
+      <img src="/claude-icon.png" alt="Claude" width={24} height={24} className="shrink-0" />
     );
   }
   if (model.includes("gemini")) {
