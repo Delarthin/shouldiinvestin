@@ -68,12 +68,13 @@ export async function GET(request: NextRequest) {
       .join("\n");
 
     const results: { ticker: string; recommendation: string; status: string }[] = [];
+    const failed: string[] = [];
 
-    for (const symbol of TICKER_SLUGS) {
+    async function generateForTicker(symbol: string) {
       const tickerData = eodData.tickers.find((t) => t.ticker === symbol);
       if (!tickerData) {
         results.push({ ticker: symbol, recommendation: "", status: "no_data" });
-        continue;
+        return;
       }
 
       const existing = await sql`
@@ -81,43 +82,63 @@ export async function GET(request: NextRequest) {
       `;
       if (existing.length > 0) {
         results.push({ ticker: symbol, recommendation: "", status: "already_exists" });
-        continue;
+        return;
       }
 
-      try {
-        const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: `You are a market analyst providing a daily BUY or SELL recommendation for ${symbol} for the next trading day. You must respond with valid JSON only, no markdown. Use this exact format:
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content: `You are a market analyst providing a daily BUY or SELL recommendation for ${symbol} for the next trading day. You must respond with valid JSON only, no markdown. Use this exact format:
 {"recommendation": "BUY" or "SELL", "reasoning": "2-3 sentence explanation"}
 
 Base your analysis on the provided end-of-day market data. Consider momentum, sector performance, and risk signals. Be concise and direct.`,
-            },
-            {
-              role: "user",
-              content: `End-of-day market data for ${tickerData.date}:\n\n${marketSummary}\n\n${symbol} closed at $${tickerData.close}, ${tickerData.changePct >= 0 ? "up" : "down"} ${Math.abs(tickerData.changePct)}% from the previous close.\n\nProvide your BUY or SELL recommendation for ${symbol} for the next trading day.`,
-            },
-          ],
-          temperature: 0.3,
-        });
+          },
+          {
+            role: "user",
+            content: `End-of-day market data for ${tickerData.date}:\n\n${marketSummary}\n\n${symbol} closed at $${tickerData.close}, ${tickerData.changePct >= 0 ? "up" : "down"} ${Math.abs(tickerData.changePct)}% from the previous close.\n\nProvide your BUY or SELL recommendation for ${symbol} for the next trading day.`,
+          },
+        ],
+        temperature: 0.3,
+      });
 
-        const content = completion.choices[0]?.message?.content?.trim();
-        if (!content) throw new Error("No response");
+      const content = completion.choices[0]?.message?.content?.trim();
+      if (!content) throw new Error("No response");
 
-        const parsed = JSON.parse(content);
+      const parsed = JSON.parse(content);
 
-        await sql`
-          INSERT INTO ai_recommendations (ticker, eod_date, recommendation, reasoning, close_price)
-          VALUES (${symbol}, ${tickerData.date}, ${parsed.recommendation}, ${parsed.reasoning}, ${tickerData.close})
-          ON CONFLICT (ticker, eod_date) DO NOTHING
-        `;
+      await sql`
+        INSERT INTO ai_recommendations (ticker, eod_date, recommendation, reasoning, close_price)
+        VALUES (${symbol}, ${tickerData.date}, ${parsed.recommendation}, ${parsed.reasoning}, ${tickerData.close})
+        ON CONFLICT (ticker, eod_date) DO NOTHING
+      `;
 
-        results.push({ ticker: symbol, recommendation: parsed.recommendation, status: "created" });
+      results.push({ ticker: symbol, recommendation: parsed.recommendation, status: "created" });
+    }
+
+    // First pass
+    for (const symbol of TICKER_SLUGS) {
+      try {
+        await generateForTicker(symbol);
       } catch (err) {
         console.error(`AI recommendation error for ${symbol}:`, err);
-        results.push({ ticker: symbol, recommendation: "", status: "error" });
+        failed.push(symbol);
+      }
+    }
+
+    // Retry failed tickers after 3 minute wait
+    if (failed.length > 0) {
+      console.log(`Retrying ${failed.length} failed tickers after 3 min: ${failed.join(", ")}`);
+      await new Promise((resolve) => setTimeout(resolve, 180000));
+
+      for (const symbol of failed) {
+        try {
+          await generateForTicker(symbol);
+        } catch (err) {
+          console.error(`Retry failed for ${symbol}:`, err);
+          results.push({ ticker: symbol, recommendation: "", status: "error" });
+        }
       }
     }
 
