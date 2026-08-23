@@ -10,7 +10,7 @@ const openrouter = new OpenAI({
 
 const AI_MODELS = [
   { id: "openai/gpt-4o-mini", label: "gpt-4o-mini" },
-  { id: "anthropic/claude-haiku-4.5", label: "claude-haiku-4.5" },
+  { id: "anthropic/claude-3-haiku", label: "claude-3-haiku" },
   { id: "google/gemini-3.5-flash", label: "gemini-3.5-flash" },
 ];
 

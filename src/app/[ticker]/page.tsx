@@ -105,7 +105,7 @@ function nextTradingDay(dateStr: string): string {
 
 const ALL_MODELS = [
   { label: "gpt-4o-mini", display: "GPT-4o Mini" },
-  { label: "claude-haiku-4.5", display: "Claude Haiku" },
+  { label: "claude-3-haiku", display: "Claude Haiku" },
   { label: "gemini-3.5-flash", display: "Gemini Flash" },
 ];
 
