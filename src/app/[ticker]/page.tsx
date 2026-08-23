@@ -112,23 +112,24 @@ const ALL_MODELS = [
 function ModelLogo({ model }: { model: string }) {
   if (model.includes("gpt")) {
     return (
-      <span className="h-6 w-6 rounded-full bg-[#10a37f] flex items-center justify-center shrink-0">
-        <span className="text-white text-[10px] font-bold">G</span>
-      </span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="shrink-0">
+        <path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.998 5.998 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.833-3.387L15.119 7.2a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z" fill="#10a37f"/>
+      </svg>
     );
   }
   if (model.includes("claude")) {
     return (
-      <span className="h-6 w-6 rounded-full bg-[#d97706] flex items-center justify-center shrink-0">
-        <span className="text-white text-[10px] font-bold">C</span>
-      </span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="shrink-0">
+        <path d="M16.009 7.5L12.009 18.5H14.209L15.209 15.5H19.209L20.209 18.5H22.409L18.409 7.5H16.009ZM15.809 13.7L17.209 9.7L18.609 13.7H15.809Z" fill="#D97706"/>
+        <path d="M4.609 7.5L1.609 18.5H3.809L4.509 15.9H8.709L9.409 18.5H11.609L8.609 7.5H4.609ZM5.109 14.1L6.609 8.7L8.109 14.1H5.109Z" fill="#D97706"/>
+      </svg>
     );
   }
   if (model.includes("gemini")) {
     return (
-      <span className="h-6 w-6 rounded-full bg-[#4285f4] flex items-center justify-center shrink-0">
-        <span className="text-white text-[10px] font-bold">G</span>
-      </span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="shrink-0">
+        <path d="M12 24C12 20.2 11.1 17.5 9.3 15.7C7.5 13.9 4.8 13 1 13C4.8 13 7.5 12.1 9.3 10.3C11.1 8.5 12 5.8 12 2C12 5.8 12.9 8.5 14.7 10.3C16.5 12.1 19.2 13 23 13C19.2 13 16.5 13.9 14.7 15.7C12.9 17.5 12 20.2 12 24Z" fill="#4285f4"/>
+      </svg>
     );
   }
   return null;
@@ -138,7 +139,7 @@ function AiPanel({ aiModels }: { aiModels: { model: string; recommendation: stri
   const modelMap = new Map(aiModels.map((m) => [m.model, m]));
 
   return (
-    <div className="w-full border-2 border-foreground/20 bg-background">
+    <div className="w-full border border-border border-t-0 bg-background">
       {ALL_MODELS.map((m) => {
         const data = modelMap.get(m.label);
         return (
@@ -249,7 +250,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
   return (
     <section className={`${styles.gridBg} relative overflow-hidden`}>
       <div className="mx-auto max-w-7xl px-6 pb-20 pt-16">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 lg:items-start">
           {/* Left column */}
           <div className="flex flex-col justify-center">
             <h1 className="text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
@@ -467,11 +468,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
               </svg>
             </button>
 
-            {showAiPanel && (
-              <div className="mt-3">
-                <AiPanel aiModels={aiModels} />
-              </div>
-            )}
+            {showAiPanel && <AiPanel aiModels={aiModels} />}
           </div>
         </div>
       </div>
