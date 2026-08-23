@@ -490,7 +490,7 @@ function Footer({ eodDate }: { eodDate: string }) {
             <span className="font-mono text-xs font-bold tracking-tight">SHOULDIINVESTIN</span>
           </a>
           <p className="font-mono text-xs text-muted">
-            EOD data via Yahoo Finance &middot; Data as of {formatDate(eodDate)}
+            Data as of {formatDate(eodDate)}
           </p>
         </div>
       </div>
