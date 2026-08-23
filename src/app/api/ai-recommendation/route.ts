@@ -10,8 +10,8 @@ const openrouter = new OpenAI({
 
 const AI_MODELS = [
   { id: "openai/gpt-4o-mini", label: "gpt-4o-mini" },
-  { id: "anthropic/claude-3.5-haiku", label: "claude-3.5-haiku" },
-  { id: "google/gemini-2.0-flash-001", label: "gemini-2.0-flash" },
+  { id: "anthropic/claude-haiku-4.5", label: "claude-haiku-4.5" },
+  { id: "google/gemini-3.5-flash", label: "gemini-3.5-flash" },
 ];
 
 interface TickerData {
