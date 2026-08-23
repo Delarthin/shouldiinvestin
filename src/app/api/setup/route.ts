@@ -33,9 +33,13 @@ export async function GET() {
         UNIQUE(ticker, eod_date)
       )
     `;
-    // Add ticker column if missing (migration for old tables)
     await sql`ALTER TABLE ai_recommendations ADD COLUMN IF NOT EXISTS ticker VARCHAR(10) NOT NULL DEFAULT 'SPY'`;
     await sql`ALTER TABLE ai_recommendations ADD COLUMN IF NOT EXISTS close_price DECIMAL(10, 2) NOT NULL DEFAULT 0`;
+    await sql`ALTER TABLE ai_recommendations ADD COLUMN IF NOT EXISTS model VARCHAR(30) NOT NULL DEFAULT 'gpt-4o-mini'`;
+    // Drop old unique constraint and add new one with model
+    await sql`ALTER TABLE ai_recommendations DROP CONSTRAINT IF EXISTS ai_recommendations_ticker_eod_date_key`;
+    await sql`ALTER TABLE ai_recommendations DROP CONSTRAINT IF EXISTS ai_recommendations_eod_date_key`;
+    await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_rec_unique ON ai_recommendations (ticker, eod_date, model)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_ai_rec_ticker_date ON ai_recommendations (ticker, eod_date)`;
 
     return Response.json({ success: true, message: "Database initialized" });

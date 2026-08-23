@@ -3,7 +3,16 @@ import sql from "@/lib/db";
 import OpenAI from "openai";
 import { TICKER_SLUGS } from "@/lib/tickers";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openrouter = new OpenAI({
+  apiKey: process.env.OPENROUTER_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+});
+
+const AI_MODELS = [
+  { id: "openai/gpt-4o-mini", label: "gpt-4o-mini" },
+  { id: "anthropic/claude-3.5-haiku", label: "claude-3.5-haiku" },
+  { id: "google/gemini-2.0-flash-001", label: "gemini-2.0-flash" },
+];
 
 interface TickerData {
   ticker: string;
@@ -22,23 +31,24 @@ export async function GET(request: NextRequest) {
   const dateParam = request.nextUrl.searchParams.get("date");
   const tickerParam = request.nextUrl.searchParams.get("ticker")?.toUpperCase();
 
-  // Lookup mode: /api/ai-recommendation?date=2024-08-22&ticker=TSLA
+  // Lookup mode: /api/ai-recommendation?date=...&ticker=...
   if (dateParam && tickerParam) {
     try {
       const rows = await sql`
-        SELECT recommendation, reasoning, eod_date, close_price, generated_at, ticker
+        SELECT recommendation, reasoning, eod_date, close_price, generated_at, ticker, model
         FROM ai_recommendations
         WHERE eod_date = ${dateParam} AND ticker = ${tickerParam}
-        LIMIT 1
+        ORDER BY model
       `;
       if (rows.length > 0) {
         return Response.json({
-          ticker: rows[0].ticker,
-          recommendation: rows[0].recommendation,
-          reasoning: rows[0].reasoning,
+          ticker: tickerParam,
           date: rows[0].eod_date,
-          closePrice: rows[0].close_price,
-          generatedAt: rows[0].generated_at,
+          models: rows.map((r) => ({
+            model: r.model,
+            recommendation: r.recommendation,
+            reasoning: r.reasoning,
+          })),
         });
       }
       return Response.json({ error: "No recommendation for this ticker/date" }, { status: 404 });
@@ -47,8 +57,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Cron mode: no date/ticker params — generate recommendations for ALL tickers
-  // Protected by CRON_SECRET
+  // Cron mode: generate for ALL tickers × ALL models
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret) {
     const authHeader = request.headers.get("authorization");
@@ -67,26 +76,20 @@ export async function GET(request: NextRequest) {
       .map((t) => `${t.ticker}: $${t.close} (${t.changePct >= 0 ? "+" : ""}${t.changePct}%)`)
       .join("\n");
 
-    const results: { ticker: string; recommendation: string; status: string }[] = [];
-    const failed: string[] = [];
+    const results: { ticker: string; model: string; recommendation: string; status: string }[] = [];
+    const failed: { ticker: string; model: typeof AI_MODELS[number] }[] = [];
 
-    async function generateForTicker(symbol: string) {
-      const tickerData = eodData.tickers.find((t) => t.ticker === symbol);
-      if (!tickerData) {
-        results.push({ ticker: symbol, recommendation: "", status: "no_data" });
-        return;
-      }
-
+    async function generateOne(symbol: string, model: typeof AI_MODELS[number], tickerData: TickerData) {
       const existing = await sql`
-        SELECT id FROM ai_recommendations WHERE ticker = ${symbol} AND eod_date = ${tickerData.date} LIMIT 1
+        SELECT id FROM ai_recommendations WHERE ticker = ${symbol} AND eod_date = ${tickerData.date} AND model = ${model.label} LIMIT 1
       `;
       if (existing.length > 0) {
-        results.push({ ticker: symbol, recommendation: "", status: "already_exists" });
+        results.push({ ticker: symbol, model: model.label, recommendation: "", status: "already_exists" });
         return;
       }
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+      const completion = await openrouter.chat.completions.create({
+        model: model.id,
         messages: [
           {
             role: "system",
@@ -109,35 +112,45 @@ Base your analysis on the provided end-of-day market data. Consider momentum, se
       const parsed = JSON.parse(content);
 
       await sql`
-        INSERT INTO ai_recommendations (ticker, eod_date, recommendation, reasoning, close_price)
-        VALUES (${symbol}, ${tickerData.date}, ${parsed.recommendation}, ${parsed.reasoning}, ${tickerData.close})
-        ON CONFLICT (ticker, eod_date) DO NOTHING
+        INSERT INTO ai_recommendations (ticker, eod_date, recommendation, reasoning, close_price, model)
+        VALUES (${symbol}, ${tickerData.date}, ${parsed.recommendation}, ${parsed.reasoning}, ${tickerData.close}, ${model.label})
+        ON CONFLICT DO NOTHING
       `;
 
-      results.push({ ticker: symbol, recommendation: parsed.recommendation, status: "created" });
+      results.push({ ticker: symbol, model: model.label, recommendation: parsed.recommendation, status: "created" });
     }
 
-    // First pass
+    // First pass: all tickers × all models
     for (const symbol of TICKER_SLUGS) {
-      try {
-        await generateForTicker(symbol);
-      } catch (err) {
-        console.error(`AI recommendation error for ${symbol}:`, err);
-        failed.push(symbol);
+      const tickerData = eodData.tickers.find((t) => t.ticker === symbol);
+      if (!tickerData) {
+        results.push({ ticker: symbol, model: "", recommendation: "", status: "no_data" });
+        continue;
+      }
+
+      for (const model of AI_MODELS) {
+        try {
+          await generateOne(symbol, model, tickerData);
+        } catch (err) {
+          console.error(`Error ${model.label} for ${symbol}:`, err);
+          failed.push({ ticker: symbol, model });
+        }
       }
     }
 
-    // Retry failed tickers after 3 minute wait
+    // Retry failed after 3 minutes
     if (failed.length > 0) {
-      console.log(`Retrying ${failed.length} failed tickers after 3 min: ${failed.join(", ")}`);
+      console.log(`Retrying ${failed.length} failed calls after 3 min`);
       await new Promise((resolve) => setTimeout(resolve, 180000));
 
-      for (const symbol of failed) {
+      for (const { ticker: symbol, model } of failed) {
+        const tickerData = eodData.tickers.find((t) => t.ticker === symbol);
+        if (!tickerData) continue;
         try {
-          await generateForTicker(symbol);
+          await generateOne(symbol, model, tickerData);
         } catch (err) {
-          console.error(`Retry failed for ${symbol}:`, err);
-          results.push({ ticker: symbol, recommendation: "", status: "error" });
+          console.error(`Retry failed ${model.label} for ${symbol}:`, err);
+          results.push({ ticker: symbol, model: model.label, recommendation: "", status: "error" });
         }
       }
     }

@@ -109,6 +109,8 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
   const [up, setUp] = useState(0);
   const [down, setDown] = useState(0);
   const [aiCall, setAiCall] = useState<"BUY" | "SELL" | null>(null);
+  const [aiModels, setAiModels] = useState<{ model: string; recommendation: string; reasoning: string }[]>([]);
+  const [showAiPanel, setShowAiPanel] = useState(false);
   const predictionDate = nextTradingDay(eodDate);
   const total = up + down;
   const upPct = total > 0 ? Math.round((up / total) * 100) : 50;
@@ -140,10 +142,19 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
       })
       .catch(() => {});
 
-    // Fetch GPT's recommendation
+    // Fetch AI recommendations
     fetch(`/api/ai-recommendation?date=${eodDate}&ticker=${symbol}`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
-      .then((data) => { setAiCall(data.recommendation); })
+      .then((data) => {
+        if (data.models) {
+          setAiModels(data.models);
+          // Use GPT's call for the main card, fall back to first model
+          const gpt = data.models.find((m: { model: string }) => m.model.includes("gpt"));
+          setAiCall((gpt || data.models[0])?.recommendation || null);
+        } else if (data.recommendation) {
+          setAiCall(data.recommendation);
+        }
+      })
       .catch(() => {});
   }, [eodDate, predictionDate, symbol, storageKey]);
 
@@ -310,6 +321,42 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
               )}
 
             </div>
+
+            {/* What AI Thinks */}
+            <button
+              onClick={() => setShowAiPanel(!showAiPanel)}
+              className="mt-6 max-w-md w-full py-3 border border-border font-mono text-xs tracking-wider text-muted hover:text-foreground hover:border-foreground/30 transition-colors flex items-center justify-center gap-2"
+            >
+              WHAT AI THINKS
+              <svg
+                width="10" height="10" viewBox="0 0 10 10" fill="none"
+                className={`transition-transform ${showAiPanel ? "rotate-180" : ""}`}
+              >
+                <path d="M2 4L5 7L8 4" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+            </button>
+
+            {showAiPanel && aiModels.length > 0 && (
+              <div className="mt-3 max-w-md w-full border border-border bg-background">
+                {aiModels.map((m) => (
+                  <div key={m.model} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
+                    <span className="font-mono text-xs text-muted">{m.model}</span>
+                    <span className={`font-mono text-sm font-black ${m.recommendation === "BUY" ? "text-green-600" : "text-red-500"}`}>
+                      {m.recommendation}
+                    </span>
+                  </div>
+                ))}
+                <div className="px-4 py-2 border-t border-border">
+                  <span className="font-mono text-[10px] text-muted">AI-generated. Not financial advice.</span>
+                </div>
+              </div>
+            )}
+
+            {showAiPanel && aiModels.length === 0 && (
+              <div className="mt-3 max-w-md w-full border border-border bg-background px-4 py-4 text-center">
+                <span className="font-mono text-xs text-muted">No AI recommendations available yet.</span>
+              </div>
+            )}
           </div>
 
           {/* Right column - Call of the Day card (desktop only) */}
