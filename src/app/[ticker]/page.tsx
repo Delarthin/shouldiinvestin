@@ -200,13 +200,8 @@ function BeatSpySection({ symbol, predictionDate }: { symbol: string; prediction
 
       <div className="mb-3">
         <span className="font-mono text-sm font-bold">
-          Will {symbol} outperform the S&amp;P 500 (SPY) in terms of percentage increase?
+          Will {symbol} outperform the S&amp;P 500 (SPY) by close on {formatDate(predictionDate)}?
         </span>
-        <div className="mt-1">
-          <span className="font-mono text-xs text-muted">
-            Predicting close on {formatDate(predictionDate)}
-          </span>
-        </div>
       </div>
 
       {locked ? (
