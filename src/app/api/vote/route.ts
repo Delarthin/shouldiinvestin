@@ -1,4 +1,4 @@
-import { sql } from "@vercel/postgres";
+import sql from "@/lib/db";
 import { NextRequest } from "next/server";
 import { createHash } from "crypto";
 
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
   let up = 0;
   let down = 0;
-  for (const row of tallies.rows) {
+  for (const row of tallies) {
     if (row.direction === "up") up = row.count;
     if (row.direction === "down") down = row.count;
   }
@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     up,
     down,
     total: up + down,
-    userVote: userVote.rows[0]?.direction || null,
+    userVote: userVote[0]?.direction || null,
   });
 }
 
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
   // Check if already voted for this date
   const existing = await sql`SELECT id FROM predictions WHERE prediction_date = ${predictionDate} AND ip_hash = ${ipHash} LIMIT 1`;
 
-  if (existing.rows.length > 0) {
+  if (existing.length > 0) {
     return Response.json({ error: "Already voted for this date" }, { status: 409 });
   }
 
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
   let up = 0;
   let down = 0;
-  for (const row of tallies.rows) {
+  for (const row of tallies) {
     if (row.direction === "up") up = row.count;
     if (row.direction === "down") down = row.count;
   }

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { sql } from "@vercel/postgres";
+import sql from "@/lib/db";
 import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   // If called with a date, return the stored recommendation for that date
   if (dateParam) {
     try {
-      const { rows } = await sql`
+      const rows = await sql`
         SELECT recommendation, reasoning, eod_date, spy_close, generated_at
         FROM ai_recommendations
         WHERE eod_date = ${dateParam}
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     if (!spy) throw new Error("SPY data not found");
 
     // Check if we already have a recommendation for this date
-    const { rows: existing } = await sql`
+    const existing = await sql`
       SELECT id FROM ai_recommendations WHERE eod_date = ${spy.date} LIMIT 1
     `;
     if (existing.length > 0) {
