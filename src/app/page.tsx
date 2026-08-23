@@ -250,20 +250,20 @@ export default function Home() {
         <TickerMarquee />
       </form>
 
-      {/* Join CTA */}
-      <button
-        onClick={() => setShowSignup(true)}
-        className="mt-8 px-8 py-3 bg-accent text-white font-mono text-xs font-bold tracking-wider hover:bg-accent/90 transition-colors"
-      >
-        JOIN THE COMMUNITY
-      </button>
-
       {/* Disclaimer */}
       <div className="mt-10 max-w-lg text-center">
         <p className="font-mono text-[10px] text-muted/60">
           All information reflected is based on crowd sentiment. This is not financial advice. Please exercise your own judgement before making investment decisions.
         </p>
       </div>
+
+      {/* Join CTA */}
+      <button
+        onClick={() => setShowSignup(true)}
+        className="mt-6 px-8 py-3 bg-accent text-white font-mono text-xs font-bold tracking-wider hover:bg-accent/90 transition-colors"
+      >
+        JOIN THE COMMUNITY
+      </button>
 
       {showSignup && <SignupModal onClose={() => setShowSignup(false)} />}
     </main>
