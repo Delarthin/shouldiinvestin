@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: "Should I Invest in SPY? | BUY or SELL Today",
     description:
       "See the crowd's prediction and GPT's daily BUY/SELL call for SPY (S&P 500 ETF). Lock in your forecast now.",
-    url: "https://shouldiinvestin.vercel.app/SPY",
+    url: "https://www.shouldiiinvestin.com/SPY",
   },
   twitter: {
     title: "Should I Invest in SPY? | BUY or SELL Today",
@@ -22,7 +22,7 @@ export default function SPYLayout({ children }: { children: React.ReactNode }) {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     name: "Should I Invest In SPY?",
-    url: "https://shouldiinvestin.vercel.app/SPY",
+    url: "https://www.shouldiiinvestin.com/SPY",
     description:
       "Daily BUY/SELL predictions for SPY (S&P 500 ETF) powered by crowd forecasting and GPT.",
     applicationCategory: "FinanceApplication",
@@ -36,7 +36,7 @@ export default function SPYLayout({ children }: { children: React.ReactNode }) {
       "@type": "FinancialProduct",
       name: "SPY",
       description: "SPDR S&P 500 ETF Trust",
-      url: "https://shouldiinvestin.vercel.app/SPY",
+      url: "https://www.shouldiiinvestin.com/SPY",
     },
   };
 

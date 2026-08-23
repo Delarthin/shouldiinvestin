@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://shouldiinvestin.vercel.app"),
+  metadataBase: new URL("https://www.shouldiiinvestin.com"),
   title: {
     default: "Should I Invest In? | Live Social Forecasting",
     template: "%s | Should I Invest In?",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Should I Invest In? | Live Social Forecasting",
     description:
       "Stake your intuition against the grid. Predict if SPY goes up or down and track your accuracy.",
-    url: "https://shouldiinvestin.vercel.app",
+    url: "https://www.shouldiiinvestin.com",
   },
   twitter: {
     card: "summary_large_image",
@@ -49,12 +49,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "Should I Invest In?",
-    url: "https://shouldiinvestin.vercel.app",
+    url: "https://www.shouldiiinvestin.com",
     description:
       "Live social forecasting platform. Predict if stocks go up or down and track your accuracy.",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://shouldiinvestin.vercel.app/{ticker}",
+      target: "https://www.shouldiiinvestin.com/{ticker}",
       "query-input": "required name=ticker",
     },
   };
