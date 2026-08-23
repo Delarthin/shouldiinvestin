@@ -1,0 +1,134 @@
+{
+  "fetchedAt": "2026-08-23T03:46:07.593304+00:00",
+  "dataType": "EOD",
+  "tickers": [
+    {
+      "ticker": "SPY",
+      "close": 765.72,
+      "prevClose": 762.6,
+      "change": 3.12,
+      "changePct": 0.41,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "VOO",
+      "close": 703.71,
+      "prevClose": 701.01,
+      "change": 2.7,
+      "changePct": 0.39,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "QQQ",
+      "close": 713.44,
+      "prevClose": 710.93,
+      "change": 2.51,
+      "changePct": 0.35,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "IVV",
+      "close": 769.31,
+      "prevClose": 766.34,
+      "change": 2.97,
+      "changePct": 0.39,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "VTI",
+      "close": 378.24,
+      "prevClose": 376.58,
+      "change": 1.66,
+      "changePct": 0.44,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "DIA",
+      "close": 532.22,
+      "prevClose": 527.07,
+      "change": 5.15,
+      "changePct": 0.98,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "IWM",
+      "close": 299.96,
+      "prevClose": 297.67,
+      "change": 2.29,
+      "changePct": 0.77,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "NVDA",
+      "close": 214.72,
+      "prevClose": 216.85,
+      "change": -2.13,
+      "changePct": -0.98,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "AAPL",
+      "close": 309.35,
+      "prevClose": 311.3,
+      "change": -1.95,
+      "changePct": -0.63,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "MSFT",
+      "close": 483.24,
+      "prevClose": 481.15,
+      "change": 2.09,
+      "changePct": 0.43,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "META",
+      "close": 549.9,
+      "prevClose": 545.83,
+      "change": 4.07,
+      "changePct": 0.75,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "AMZN",
+      "close": 258.63,
+      "prevClose": 260.11,
+      "change": -1.48,
+      "changePct": -0.57,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "TSLA",
+      "close": 362.86,
+      "prevClose": 345.13,
+      "change": 17.73,
+      "changePct": 5.14,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "AMD",
+      "close": 473.25,
+      "prevClose": 469.46,
+      "change": 3.79,
+      "changePct": 0.81,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "PLTR",
+      "close": 179.94,
+      "prevClose": 173.96,
+      "change": 5.98,
+      "changePct": 3.44,
+      "date": "2026-08-21"
+    },
+    {
+      "ticker": "GOOG",
+      "close": 341.75,
+      "prevClose": 338.2,
+      "change": 3.55,
+      "changePct": 1.05,
+      "date": "2026-08-21"
+    }
+  ]
+}
