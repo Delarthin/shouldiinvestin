@@ -1,6 +1,14 @@
 import type { MetadataRoute } from "next";
+import { TICKER_SLUGS } from "@/lib/tickers";
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const tickerPages = TICKER_SLUGS.map((ticker) => ({
+    url: `https://www.shouldiiinvestin.com/${ticker}`,
+    lastModified: new Date(),
+    changeFrequency: "daily" as const,
+    priority: 0.9,
+  }));
+
   return [
     {
       url: "https://www.shouldiiinvestin.com",
@@ -8,11 +16,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
       priority: 1,
     },
-    {
-      url: "https://www.shouldiiinvestin.com/SPY",
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
+    ...tickerPages,
   ];
 }

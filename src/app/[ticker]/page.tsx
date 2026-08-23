@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import styles from "./spy.module.css";
+import { useParams } from "next/navigation";
+import { TICKERS } from "@/lib/tickers";
+import styles from "./ticker.module.css";
 
 /* ───────────────────── Types ───────────────────── */
 
@@ -47,7 +49,6 @@ function TickerTape({ tickers }: { tickers: TickerData[] }) {
       const w = firstHalfRef.current.offsetWidth;
       setTickerWidth(w);
 
-      // Inject keyframes with exact pixel width for seamless loop
       const styleId = "ticker-loop-style";
       let style = document.getElementById(styleId) as HTMLStyleElement | null;
       if (!style) {
@@ -96,14 +97,13 @@ function TickerTape({ tickers }: { tickers: TickerData[] }) {
 
 function nextTradingDay(dateStr: string): string {
   const d = new Date(dateStr + "T12:00:00");
-  // Advance to next weekday
   do {
     d.setDate(d.getDate() + 1);
   } while (d.getDay() === 0 || d.getDay() === 6);
   return d.toISOString().split("T")[0];
 }
 
-function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
+function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData: TickerData; eodDate: string; symbol: string; description: string }) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
   const [locked, setLocked] = useState(false);
   const [up, setUp] = useState(0);
@@ -111,11 +111,10 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
   const predictionDate = nextTradingDay(eodDate);
   const total = up + down;
   const upPct = total > 0 ? Math.round((up / total) * 100) : 50;
+  const storageKey = `siii-prediction-${symbol}`;
 
-  // Fetch existing votes and check if user already voted
   useEffect(() => {
-    // Check localStorage first
-    const saved = localStorage.getItem("siii-prediction");
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -123,13 +122,12 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
           setVote(parsed.direction);
           setLocked(true);
         } else {
-          localStorage.removeItem("siii-prediction");
+          localStorage.removeItem(storageKey);
         }
       } catch { /* ignore */ }
     }
 
-    // Try API for real tallies (works when DB is connected)
-    fetch(`/api/vote?date=${eodDate}`)
+    fetch(`/api/vote?date=${eodDate}&ticker=${symbol}`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data) => {
         setUp(data.up || 0);
@@ -140,25 +138,23 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
         }
       })
       .catch(() => {});
-  }, [eodDate, predictionDate]);
+  }, [eodDate, predictionDate, symbol, storageKey]);
 
   function handleLockIn() {
     if (!vote) return;
 
-    // Always save to localStorage
-    localStorage.setItem("siii-prediction", JSON.stringify({
+    localStorage.setItem(storageKey, JSON.stringify({
       direction: vote,
       date: predictionDate,
-      entryPrice: spy.close,
+      entryPrice: tickerData.close,
       lockedAt: new Date().toISOString(),
     }));
     setLocked(true);
 
-    // Try API (works when DB is connected)
     fetch("/api/vote", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ direction: vote, eodDate, entryPrice: spy.close }),
+      body: JSON.stringify({ direction: vote, eodDate, entryPrice: tickerData.close, ticker: symbol }),
     })
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data) => {
@@ -179,16 +175,16 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
               <br />
               INVEST IN
               <br />
-              <span className="text-accent">SPY</span>
+              <span className="text-accent">{symbol}</span>
               <span className="text-accent">?</span>
             </h1>
 
-            <p className="mt-2 text-sm text-muted">SPDR S&amp;P 500 ETF Trust</p>
+            <p className="mt-2 text-sm text-muted">{description}</p>
 
             <div className="mt-4 flex items-center gap-3">
-              <span className="font-mono text-2xl font-black tabular-nums">${spy.close.toFixed(2)}</span>
-              <span className={`font-mono text-sm font-medium tabular-nums ${spy.changePct >= 0 ? "text-green-600" : "text-red-500"}`}>
-                {spy.changePct >= 0 ? "+" : ""}{spy.change.toFixed(2)} ({spy.changePct >= 0 ? "+" : ""}{spy.changePct.toFixed(2)}%)
+              <span className="font-mono text-2xl font-black tabular-nums">${tickerData.close.toFixed(2)}</span>
+              <span className={`font-mono text-sm font-medium tabular-nums ${tickerData.changePct >= 0 ? "text-green-600" : "text-red-500"}`}>
+                {tickerData.changePct >= 0 ? "+" : ""}{tickerData.change.toFixed(2)} ({tickerData.changePct >= 0 ? "+" : ""}{tickerData.changePct.toFixed(2)}%)
               </span>
             </div>
 
@@ -217,7 +213,7 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
                     </span>
                   </div>
                   <div>
-                    <span className="font-mono text-sm tracking-wide text-background/50">SPY &middot; SPDR S&amp;P 500</span>
+                    <span className="font-mono text-sm tracking-wide text-background/50">{symbol} &middot; {description}</span>
                   </div>
                 </div>
                 <div className="border-t border-background/10 px-8 py-3">
@@ -231,7 +227,7 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
               Market closes at 4:00 PM ET, Monday through Friday. Data updates daily after close.
             </p>
 
-            {/* Simplified UP / DOWN prediction */}
+            {/* UP / DOWN prediction */}
             <div id="prediction" className="mt-10 max-w-md">
               <div className="mb-3 flex flex-col gap-1">
                 <div className="flex items-center justify-between">
@@ -250,10 +246,10 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
               {locked ? (
                 <div className={`py-4 border text-center ${vote === "up" ? "bg-green-600 text-white border-green-600" : "bg-red-500 text-white border-red-500"}`}>
                   <div className="font-mono text-sm font-bold">
-                    LOCKED: SPY {vote === "up" ? "GOES UP" : "GOES DOWN"}
+                    LOCKED: {symbol} {vote === "up" ? "GOES UP" : "GOES DOWN"}
                   </div>
                   <div className="font-mono text-xs mt-1 opacity-75">
-                    Entry: ${spy.close.toFixed(2)} &middot; Resolves {formatDate(predictionDate)}
+                    Entry: ${tickerData.close.toFixed(2)} &middot; Resolves {formatDate(predictionDate)}
                   </div>
                 </div>
               ) : (
@@ -270,7 +266,7 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M8 13V3M8 3L3 8M8 3L13 8" stroke="currentColor" strokeWidth="2" />
                       </svg>
-                      SPY GOES UP
+                      {symbol} GOES UP
                     </button>
                     <button
                       onClick={() => setVote("down")}
@@ -283,7 +279,7 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M8 3V13M8 13L3 8M8 13L13 8" stroke="currentColor" strokeWidth="2" />
                       </svg>
-                      SPY GOES DOWN
+                      {symbol} GOES DOWN
                     </button>
                   </div>
 
@@ -296,7 +292,7 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
                     }`}
                     disabled={!vote}
                   >
-                    {vote ? `Lock In: SPY ${vote === "up" ? "GOES UP" : "GOES DOWN"}` : "Select UP or DOWN"}
+                    {vote ? `Lock In: ${symbol} ${vote === "up" ? "GOES UP" : "GOES DOWN"}` : "Select UP or DOWN"}
                     {vote && (
                       <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                         <path d="M1 13L13 1M13 1H5M13 1V9" stroke="currentColor" strokeWidth="2" />
@@ -313,59 +309,32 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
           <div className="relative hidden lg:flex items-center justify-center">
             <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
               <div className="p-10 flex-1">
-              {/* Header */}
               <div className="mb-6">
                 <span className="font-mono text-xs tracking-widest text-background/50">CALL OF THE DAY</span>
               </div>
 
-              {/* Date */}
               <div className="mb-8">
                 <span className="font-mono text-xs tracking-wider text-accent">FOR</span>
                 <div className="text-3xl font-black tracking-tight">{formatDate(predictionDate)}</div>
               </div>
 
-              {/* Giant verdict */}
               <div className="mb-6">
                 <span className={`text-8xl font-black tracking-tight leading-none ${upPct >= 50 ? "text-green-500" : "text-red-400"}`}>
                   {upPct >= 50 ? "BUY" : "SELL"}
                 </span>
               </div>
 
-              {/* Ticker */}
               <div>
-                <span className="font-mono text-sm tracking-wide text-background/50">SPY &middot; SPDR S&amp;P 500</span>
+                <span className="font-mono text-sm tracking-wide text-background/50">{symbol} &middot; {description}</span>
               </div>
 
               </div>
-              {/* Disclaimer pinned to bottom */}
               <div className="border-t border-background/10 px-10 py-3">
                 <span className="font-mono text-[10px] text-background/30">Not financial advice.</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* ───────────────────── Stats Bar ───────────────────── */
-
-function StatsBar() {
-  return (
-    <section className="border-y border-border bg-background">
-      <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-border md:grid-cols-4">
-        {[
-          { label: "Predictions", value: "12,482" },
-          { label: "Say UP", value: "64%" },
-          { label: "Say DOWN", value: "36%" },
-          { label: "Predictors", value: "4,218" },
-        ].map((s) => (
-          <div key={s.label} className="px-6 py-6 text-center">
-            <div className="font-mono text-2xl font-bold">{s.value}</div>
-            <div className="mt-1 font-mono text-xs text-muted tracking-wide">{s.label.toUpperCase()}</div>
-          </div>
-        ))}
       </div>
     </section>
   );
@@ -393,7 +362,10 @@ function Footer({ eodDate }: { eodDate: string }) {
 
 /* ───────────────────── Page ───────────────────── */
 
-export default function SPYPage() {
+export default function TickerPage() {
+  const params = useParams();
+  const symbol = (params.ticker as string).toUpperCase();
+  const tickerInfo = TICKERS[symbol];
   const [eod, setEod] = useState<EODData | null>(null);
 
   useEffect(() => {
@@ -401,13 +373,20 @@ export default function SPYPage() {
       .then((r) => r.json())
       .then((data: EODData) => setEod(data))
       .catch(() => {
-        // Fallback to static file if API fails (local dev)
         fetch("/data/eod.json")
           .then((r) => r.json())
           .then((data: EODData) => setEod(data))
           .catch(() => {});
       });
   }, []);
+
+  if (!tickerInfo) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <span className="font-mono text-sm text-red-500">Unknown ticker: {symbol}</span>
+      </div>
+    );
+  }
 
   if (!eod) {
     return (
@@ -417,11 +396,11 @@ export default function SPYPage() {
     );
   }
 
-  const spy = eod.tickers.find((t) => t.ticker === "SPY");
-  if (!spy) {
+  const tickerData = eod.tickers.find((t) => t.ticker === symbol);
+  if (!tickerData) {
     return (
       <div className="flex items-center justify-center py-32">
-        <span className="font-mono text-sm text-red-500">SPY data not available</span>
+        <span className="font-mono text-sm text-red-500">{symbol} data not available</span>
       </div>
     );
   }
@@ -429,8 +408,8 @@ export default function SPYPage() {
   return (
     <>
       <TickerTape tickers={eod.tickers} />
-      <HeroSection spy={spy} eodDate={spy.date} />
-      <Footer eodDate={spy.date} />
+      <HeroSection tickerData={tickerData} eodDate={tickerData.date} symbol={symbol} description={tickerInfo.description} />
+      <Footer eodDate={tickerData.date} />
     </>
   );
 }
