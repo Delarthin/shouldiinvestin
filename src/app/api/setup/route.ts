@@ -7,26 +7,29 @@ export async function GET() {
         id SERIAL PRIMARY KEY,
         ip_hash VARCHAR(16) NOT NULL,
         direction VARCHAR(4) NOT NULL CHECK (direction IN ('up', 'down')),
+        ticker VARCHAR(10) NOT NULL DEFAULT 'SPY',
         prediction_date DATE NOT NULL,
         entry_price DECIMAL(10, 2) DEFAULT 0,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        UNIQUE(ip_hash, prediction_date)
+        UNIQUE(ip_hash, ticker, prediction_date)
       )
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_predictions_date ON predictions (prediction_date)`;
-    await sql`CREATE INDEX IF NOT EXISTS idx_predictions_ip_date ON predictions (ip_hash, prediction_date)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_predictions_ticker_date ON predictions (ticker, prediction_date)`;
 
     await sql`
       CREATE TABLE IF NOT EXISTS ai_recommendations (
         id SERIAL PRIMARY KEY,
-        eod_date DATE NOT NULL UNIQUE,
+        ticker VARCHAR(10) NOT NULL DEFAULT 'SPY',
+        eod_date DATE NOT NULL,
         recommendation VARCHAR(4) NOT NULL CHECK (recommendation IN ('BUY', 'SELL')),
         reasoning TEXT NOT NULL,
-        spy_close DECIMAL(10, 2) NOT NULL,
-        generated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        close_price DECIMAL(10, 2) NOT NULL,
+        generated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        UNIQUE(ticker, eod_date)
       )
     `;
-    await sql`CREATE INDEX IF NOT EXISTS idx_ai_rec_date ON ai_recommendations (eod_date)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ai_rec_ticker_date ON ai_recommendations (ticker, eod_date)`;
 
     return Response.json({ success: true, message: "Database initialized" });
   } catch (error) {
