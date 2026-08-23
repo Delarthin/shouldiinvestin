@@ -636,18 +636,18 @@ function Footer({ eodDate }: { eodDate: string }) {
   return (
     <footer className="border-t border-border bg-background py-10">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col items-center gap-6">
-          <FeedbackForm />
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row w-full">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center w-full">
             <a href="/" className="flex items-center gap-2">
               <LiveDot />
               <span className="font-mono text-xs font-bold tracking-tight">SHOULDIINVESTIN</span>
             </a>
+            <FeedbackForm />
             <p className="font-mono text-xs text-muted">
               Data as of {formatDate(eodDate)}
             </p>
           </div>
-          <p className="font-mono text-[10px] text-muted/60 text-center max-w-lg">
+          <p className="font-mono text-[10px] text-muted/60 text-center max-w-lg mx-auto">
             All information reflected is based on crowd sentiment. This is not financial advice. Please exercise your own judgement before making investment decisions.
           </p>
         </div>
