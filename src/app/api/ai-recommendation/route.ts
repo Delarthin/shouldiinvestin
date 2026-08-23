@@ -59,7 +59,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const baseUrl = request.nextUrl.origin;
-    const eodRes = await fetch(`${baseUrl}/api/eod`, { next: { revalidate: 0 } });
+    const eodHeaders: Record<string, string> = {};
+    if (cronSecret) eodHeaders["Authorization"] = `Bearer ${cronSecret}`;
+    const eodRes = await fetch(`${baseUrl}/api/eod`, { next: { revalidate: 0 }, headers: eodHeaders });
     if (!eodRes.ok) throw new Error("Failed to fetch EOD data");
     const eodData: EODResponse = await eodRes.json();
 
