@@ -384,7 +384,7 @@ function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { ti
               <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
                 <div className="p-8 flex-1">
                   <div className="mb-4">
-                    <span className="font-mono text-xs tracking-widest text-background/50">SENTIMENT OF THE DAY</span>
+                    <span className="font-mono text-xs tracking-widest text-background/50">COMMUNITY SENTIMENT OF THE DAY</span>
                   </div>
                   <div className="mb-6">
                     <span className="font-mono text-xs tracking-wider text-accent">FOR</span>
@@ -530,7 +530,7 @@ function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { ti
             <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
               <div className="p-10 flex-1">
               <div className="mb-6">
-                <span className="font-mono text-xs tracking-widest text-background/50">SENTIMENT OF THE DAY</span>
+                <span className="font-mono text-xs tracking-widest text-background/50">COMMUNITY SENTIMENT OF THE DAY</span>
               </div>
 
               <div className="mb-8">
@@ -578,17 +578,77 @@ function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { ti
 
 /* ───────────────────── Footer ───────────────────── */
 
+function FeedbackForm() {
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!message.trim() || message.length > 500) return;
+    setStatus("sending");
+    fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: message.trim() }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        setStatus("sent");
+        setMessage("");
+      })
+      .catch(() => setStatus("error"));
+  }
+
+  if (status === "sent") {
+    return (
+      <div className="text-center py-3">
+        <span className="font-mono text-xs text-green-600">Thanks for your feedback!</span>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="w-full max-w-md">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value.slice(0, 500))}
+          placeholder="What AI models or features do you want?"
+          className="flex-1 border border-border bg-background px-3 py-2 font-mono text-xs text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+        />
+        <button
+          type="submit"
+          disabled={!message.trim() || status === "sending"}
+          className="px-4 py-2 font-mono text-xs font-bold bg-foreground text-background hover:bg-foreground/80 transition-colors disabled:opacity-50"
+        >
+          {status === "sending" ? "..." : "SEND"}
+        </button>
+      </div>
+      {status === "error" && (
+        <span className="font-mono text-[10px] text-red-500 mt-1 block">Failed to send. Try again later.</span>
+      )}
+    </form>
+  );
+}
+
 function Footer({ eodDate }: { eodDate: string }) {
   return (
     <footer className="border-t border-border bg-background py-10">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-          <a href="/" className="flex items-center gap-2">
-            <LiveDot />
-            <span className="font-mono text-xs font-bold tracking-tight">SHOULDIINVESTIN</span>
-          </a>
-          <p className="font-mono text-xs text-muted">
-            Data as of {formatDate(eodDate)}
+        <div className="flex flex-col items-center gap-6">
+          <FeedbackForm />
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row w-full">
+            <a href="/" className="flex items-center gap-2">
+              <LiveDot />
+              <span className="font-mono text-xs font-bold tracking-tight">SHOULDIINVESTIN</span>
+            </a>
+            <p className="font-mono text-xs text-muted">
+              Data as of {formatDate(eodDate)}
+            </p>
+          </div>
+          <p className="font-mono text-[10px] text-muted/60 text-center max-w-lg">
+            All information reflected is based on crowd sentiment. This is not financial advice. Please exercise your own judgement before making investment decisions.
           </p>
         </div>
       </div>

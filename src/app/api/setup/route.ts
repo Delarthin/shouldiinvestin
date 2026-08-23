@@ -49,6 +49,17 @@ export async function GET() {
     await sql`UPDATE ai_recommendations SET recommendation = 'BEARISH' WHERE recommendation = 'SELL'`;
     await sql`ALTER TABLE ai_recommendations ADD CONSTRAINT ai_recommendations_recommendation_check CHECK (recommendation IN ('BULLISH', 'BEARISH'))`;
 
+    // feedback table
+    await sql`
+      CREATE TABLE IF NOT EXISTS feedback (
+        id SERIAL PRIMARY KEY,
+        message VARCHAR(500) NOT NULL,
+        ip_hash VARCHAR(16) NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_feedback_ip ON feedback (ip_hash, created_at)`;
+
     return Response.json({ success: true, message: "Database initialized" });
   } catch (error) {
     console.error("Setup error:", error);

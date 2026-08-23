@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const { direction, eodDate, entryPrice, ticker: bodyTicker } = body;
-  const ticker = (bodyTicker || "SPY").toUpperCase();
+  const ticker = (typeof bodyTicker === "string" ? bodyTicker : "SPY").toUpperCase().slice(0, 10);
 
   if (!direction || !eodDate) {
     return Response.json({ error: "direction and eodDate required" }, { status: 400 });
@@ -63,6 +63,10 @@ export async function POST(request: NextRequest) {
 
   if (direction !== "up" && direction !== "down") {
     return Response.json({ error: "direction must be 'up' or 'down'" }, { status: 400 });
+  }
+
+  if (typeof eodDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(eodDate)) {
+    return Response.json({ error: "Invalid date format" }, { status: 400 });
   }
 
   const predictionDate = nextTradingDay(eodDate);
