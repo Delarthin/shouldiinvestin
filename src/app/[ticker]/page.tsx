@@ -119,8 +119,12 @@ function ModelLogo({ model }: { model: string }) {
   }
   if (model.includes("claude")) {
     return (
-      <svg width="24" height="24" viewBox="0 0 46 32" fill="none" className="shrink-0">
-        <path d="M28.484.001 16.809 31.999h5.964l2.86-7.904h11.497l2.86 7.904H46L34.327.001h-5.843ZM27.06 19.627l4.266-11.82 4.266 11.82H27.06ZM12.378.001 0 31.999h5.964l2.86-7.904H20.32l2.86 7.904h5.964L16.846.001h-4.468ZM10.25 19.627 14.07 8.25l3.82 11.377H10.25Z" fill="#D97706"/>
+      <svg width="24" height="24" viewBox="0 0 256 256" fill="none" className="shrink-0">
+        <g transform="translate(128,128)">
+          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((angle) => (
+            <rect key={angle} x="-8" y="-55" width="16" height="50" rx="7" fill="#D4795C" transform={`rotate(${angle}) translate(0, -45)`} />
+          ))}
+        </g>
       </svg>
     );
   }
