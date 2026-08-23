@@ -358,9 +358,6 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
                   <span className="font-mono text-xs tracking-wider text-muted">
                     MAKE YOUR CALL
                   </span>
-                  <span className="font-mono text-xs text-muted">
-                    {upPct}% say UP
-                  </span>
                 </div>
                 <span className="font-mono text-xs text-muted">
                   Predicting close on {formatDate(predictionDate)}
