@@ -162,7 +162,7 @@ function AiPanel({ aiModels }: { aiModels: { model: string; recommendation: stri
   );
 }
 
-function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData: TickerData; eodDate: string; symbol: string; description: string }) {
+function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { tickerData: TickerData; eodDate: string; symbol: string; description: string; spyData: TickerData | null }) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
   const [locked, setLocked] = useState(false);
   const [up, setUp] = useState(0);
@@ -425,6 +425,41 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
 
             </div>
 
+            {/* SPY Comparison — non-SPY tickers only */}
+            {spyData && (
+              <div className="mt-8 max-w-md">
+                <div className="mb-3">
+                  <span className="font-mono text-xs tracking-wider text-muted">VS THE MARKET</span>
+                </div>
+                <div className="border border-border p-5">
+                  <div className="font-mono text-sm font-bold mb-3">
+                    Can {symbol} beat the S&amp;P 500?
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-xs text-muted">{symbol}</span>
+                    <span className={`font-mono text-sm font-bold ${tickerData.changePct >= 0 ? "text-green-600" : "text-red-500"}`}>
+                      {tickerData.changePct >= 0 ? "+" : ""}{tickerData.changePct.toFixed(2)}%
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-mono text-xs text-muted">SPY</span>
+                    <span className={`font-mono text-sm font-bold ${spyData.changePct >= 0 ? "text-green-600" : "text-red-500"}`}>
+                      {spyData.changePct >= 0 ? "+" : ""}{spyData.changePct.toFixed(2)}%
+                    </span>
+                  </div>
+                  <div className="border-t border-border pt-3">
+                    <span className={`font-mono text-xs font-bold ${tickerData.changePct > spyData.changePct ? "text-green-600" : tickerData.changePct < spyData.changePct ? "text-red-500" : "text-muted"}`}>
+                      {tickerData.changePct > spyData.changePct
+                        ? `${symbol} outperformed SPY by ${(tickerData.changePct - spyData.changePct).toFixed(2)}%`
+                        : tickerData.changePct < spyData.changePct
+                          ? `${symbol} underperformed SPY by ${(spyData.changePct - tickerData.changePct).toFixed(2)}%`
+                          : `${symbol} matched SPY`}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
 
           {/* Right column - Call of the Day card (desktop only) */}
@@ -546,7 +581,7 @@ export default function TickerPage() {
   return (
     <>
       <TickerTape tickers={eod.tickers} />
-      <HeroSection tickerData={tickerData} eodDate={tickerData.date} symbol={symbol} description={tickerInfo.description} />
+      <HeroSection tickerData={tickerData} eodDate={tickerData.date} symbol={symbol} description={tickerInfo.description} spyData={symbol !== "SPY" ? eod.tickers.find((t) => t.ticker === "SPY") || null : null} />
       <Footer eodDate={tickerData.date} />
     </>
   );
