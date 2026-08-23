@@ -245,7 +245,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
               {/* What AI Thinks — mobile */}
               <button
                 onClick={() => setShowAiPanel(!showAiPanel)}
-                className="mt-3 w-full py-3 bg-gradient-to-br from-foreground to-foreground/90 text-background font-mono text-xs font-bold tracking-wider hover:from-foreground/80 hover:to-foreground/70 transition-colors flex items-center justify-center gap-2 border border-border"
+                className="w-full py-3 bg-foreground/90 text-background font-mono text-xs font-bold tracking-wider hover:bg-foreground/80 transition-colors flex items-center justify-center gap-2 border border-border border-t-0"
               >
                 WHAT AI THINKS
                 <svg
@@ -395,7 +395,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
             {/* What AI Thinks — below the card */}
             <button
               onClick={() => setShowAiPanel(!showAiPanel)}
-              className="mt-3 w-full py-3 bg-gradient-to-br from-foreground to-foreground/90 text-background font-mono text-xs font-bold tracking-wider hover:from-foreground/80 hover:to-foreground/70 transition-colors flex items-center justify-center gap-2 border border-border"
+              className="w-full py-3 bg-foreground/90 text-background font-mono text-xs font-bold tracking-wider hover:bg-foreground/80 transition-colors flex items-center justify-center gap-2 border border-border border-t-0"
             >
               WHAT AI THINKS
               <svg
