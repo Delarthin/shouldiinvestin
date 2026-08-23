@@ -13,18 +13,64 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Should I Invest In? | Live Social Forecasting",
+  metadataBase: new URL("https://shouldiinvestin.vercel.app"),
+  title: {
+    default: "Should I Invest In? | Live Social Forecasting",
+    template: "%s | Should I Invest In?",
+  },
   description:
     "Stake your intuition against the grid. Make predictions, build your track record, and watch collective intelligence price the future in real time.",
+  keywords: [
+    "SPY", "S&P 500", "stock prediction", "market forecast",
+    "invest", "buy or sell", "social forecasting", "ETF",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: "Should I Invest In?",
+    title: "Should I Invest In? | Live Social Forecasting",
+    description:
+      "Stake your intuition against the grid. Predict if SPY goes up or down and track your accuracy.",
+    url: "https://shouldiinvestin.vercel.app",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Should I Invest In? | Live Social Forecasting",
+    description:
+      "Predict if SPY goes up or down. Track your accuracy against the crowd.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Should I Invest In?",
+    url: "https://shouldiinvestin.vercel.app",
+    description:
+      "Live social forecasting platform. Predict if stocks go up or down and track your accuracy.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://shouldiinvestin.vercel.app/{ticker}",
+      "query-input": "required name=ticker",
+    },
+  };
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
