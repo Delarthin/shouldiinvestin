@@ -2,6 +2,7 @@ import sql from "@/lib/db";
 
 export async function GET() {
   try {
+    // predictions table
     await sql`
       CREATE TABLE IF NOT EXISTS predictions (
         id SERIAL PRIMARY KEY,
@@ -14,9 +15,12 @@ export async function GET() {
         UNIQUE(ip_hash, ticker, prediction_date)
       )
     `;
+    // Add ticker column if missing (migration for old tables)
+    await sql`ALTER TABLE predictions ADD COLUMN IF NOT EXISTS ticker VARCHAR(10) NOT NULL DEFAULT 'SPY'`;
     await sql`CREATE INDEX IF NOT EXISTS idx_predictions_date ON predictions (prediction_date)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_predictions_ticker_date ON predictions (ticker, prediction_date)`;
 
+    // ai_recommendations table
     await sql`
       CREATE TABLE IF NOT EXISTS ai_recommendations (
         id SERIAL PRIMARY KEY,
@@ -29,6 +33,9 @@ export async function GET() {
         UNIQUE(ticker, eod_date)
       )
     `;
+    // Add ticker column if missing (migration for old tables)
+    await sql`ALTER TABLE ai_recommendations ADD COLUMN IF NOT EXISTS ticker VARCHAR(10) NOT NULL DEFAULT 'SPY'`;
+    await sql`ALTER TABLE ai_recommendations ADD COLUMN IF NOT EXISTS close_price DECIMAL(10, 2) NOT NULL DEFAULT 0`;
     await sql`CREATE INDEX IF NOT EXISTS idx_ai_rec_ticker_date ON ai_recommendations (ticker, eod_date)`;
 
     return Response.json({ success: true, message: "Database initialized" });
