@@ -177,7 +177,7 @@ export default function Home() {
       {/* Disclaimer */}
       <div className="mt-10 max-w-lg text-center">
         <p className="font-mono text-[10px] text-muted/60">
-          All information reflected is based on crowd sentiment and AI-generated predictions. This is not financial advice. Please exercise your own judgement before making investment decisions.
+          All information reflected is based on crowd sentiment. This is not financial advice. Please exercise your own judgement before making investment decisions.
         </p>
       </div>
     </main>
