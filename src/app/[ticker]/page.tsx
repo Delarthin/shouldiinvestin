@@ -210,8 +210,16 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
       .then((data) => {
         if (data.models && data.models.length > 0) {
           setAiModels(data.models);
-          const gpt = data.models.find((m: { model: string }) => m.model.includes("gpt"));
-          setAiCall((gpt || data.models[0])?.recommendation || null);
+          // Majority vote
+          const buys = data.models.filter((m: { recommendation: string }) => m.recommendation === "BUY").length;
+          const sells = data.models.filter((m: { recommendation: string }) => m.recommendation === "SELL").length;
+          if (buys !== sells) {
+            setAiCall(buys > sells ? "BUY" : "SELL");
+          } else {
+            // Tie — fall back to GPT
+            const gpt = data.models.find((m: { model: string }) => m.model.includes("gpt"));
+            setAiCall(gpt?.recommendation || data.models[0]?.recommendation || null);
+          }
         } else if (data.recommendation) {
           setAiCall(data.recommendation);
           setAiModels([{ model: "gpt-4o-mini", recommendation: data.recommendation, reasoning: data.reasoning || "" }]);
