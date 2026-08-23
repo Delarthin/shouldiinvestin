@@ -103,6 +103,67 @@ function nextTradingDay(dateStr: string): string {
   return d.toISOString().split("T")[0];
 }
 
+const ALL_MODELS = [
+  { label: "gpt-4o-mini", display: "GPT-4o Mini" },
+  { label: "claude-haiku-4.5", display: "Claude Haiku" },
+  { label: "gemini-3.5-flash", display: "Gemini Flash" },
+];
+
+function ModelLogo({ model }: { model: string }) {
+  if (model.includes("gpt")) {
+    return (
+      <span className="h-6 w-6 rounded-full bg-[#10a37f] flex items-center justify-center shrink-0">
+        <span className="text-white text-[10px] font-bold">G</span>
+      </span>
+    );
+  }
+  if (model.includes("claude")) {
+    return (
+      <span className="h-6 w-6 rounded-full bg-[#d97706] flex items-center justify-center shrink-0">
+        <span className="text-white text-[10px] font-bold">C</span>
+      </span>
+    );
+  }
+  if (model.includes("gemini")) {
+    return (
+      <span className="h-6 w-6 rounded-full bg-[#4285f4] flex items-center justify-center shrink-0">
+        <span className="text-white text-[10px] font-bold">G</span>
+      </span>
+    );
+  }
+  return null;
+}
+
+function AiPanel({ aiModels }: { aiModels: { model: string; recommendation: string; reasoning: string }[] }) {
+  const modelMap = new Map(aiModels.map((m) => [m.model, m]));
+
+  return (
+    <div className="w-full border-2 border-foreground/20 bg-background">
+      {ALL_MODELS.map((m) => {
+        const data = modelMap.get(m.label);
+        return (
+          <div key={m.label} className="flex items-center justify-between px-5 py-4 border-b border-foreground/10 last:border-b-0">
+            <div className="flex items-center gap-3">
+              <ModelLogo model={m.label} />
+              <span className="font-mono text-sm font-medium text-foreground">{m.display}</span>
+            </div>
+            {data ? (
+              <span className={`font-mono text-base font-black ${data.recommendation === "BUY" ? "text-green-600" : "text-red-500"}`}>
+                {data.recommendation}
+              </span>
+            ) : (
+              <span className="font-mono text-base font-black text-muted">—</span>
+            )}
+          </div>
+        );
+      })}
+      <div className="px-5 py-2 border-t border-foreground/10">
+        <span className="font-mono text-[10px] text-muted">AI-generated. Not financial advice.</span>
+      </div>
+    </div>
+  );
+}
+
 function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData: TickerData; eodDate: string; symbol: string; description: string }) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
   const [locked, setLocked] = useState(false);
@@ -406,25 +467,9 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
               </svg>
             </button>
 
-            {showAiPanel && aiModels.length > 0 && (
-              <div className="mt-3 w-full border-2 border-foreground/20 bg-background">
-                {aiModels.map((m) => (
-                  <div key={m.model} className="flex items-center justify-between px-5 py-4 border-b border-foreground/10 last:border-b-0">
-                    <span className="font-mono text-sm font-medium text-foreground">{m.model}</span>
-                    <span className={`font-mono text-base font-black ${m.recommendation === "BUY" ? "text-green-600" : "text-red-500"}`}>
-                      {m.recommendation}
-                    </span>
-                  </div>
-                ))}
-                <div className="px-5 py-2 border-t border-foreground/10">
-                  <span className="font-mono text-[10px] text-muted">AI-generated. Not financial advice.</span>
-                </div>
-              </div>
-            )}
-
-            {showAiPanel && aiModels.length === 0 && (
-              <div className="mt-3 w-full border border-border bg-background px-4 py-4 text-center">
-                <span className="font-mono text-xs text-muted">No AI recommendations available yet.</span>
+            {showAiPanel && (
+              <div className="mt-3">
+                <AiPanel aiModels={aiModels} />
               </div>
             )}
           </div>
