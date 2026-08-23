@@ -144,18 +144,21 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
 
     // Fetch AI recommendations
     fetch(`/api/ai-recommendation?date=${eodDate}&ticker=${symbol}`)
-      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((r) => {
+        if (!r.ok) throw new Error(`API returned ${r.status}`);
+        return r.json();
+      })
       .then((data) => {
-        if (data.models) {
+        if (data.models && data.models.length > 0) {
           setAiModels(data.models);
-          // Use GPT's call for the main card, fall back to first model
           const gpt = data.models.find((m: { model: string }) => m.model.includes("gpt"));
           setAiCall((gpt || data.models[0])?.recommendation || null);
         } else if (data.recommendation) {
           setAiCall(data.recommendation);
+          setAiModels([{ model: "gpt-4o-mini", recommendation: data.recommendation, reasoning: data.reasoning || "" }]);
         }
       })
-      .catch(() => {});
+      .catch((err) => { console.error("AI rec fetch error:", err); });
   }, [eodDate, predictionDate, symbol, storageKey]);
 
   function handleLockIn() {
