@@ -60,6 +60,15 @@ export async function GET() {
     `;
     await sql`CREATE INDEX IF NOT EXISTS idx_feedback_ip ON feedback (ip_hash, created_at)`;
 
+    // subscribers table
+    await sql`
+      CREATE TABLE IF NOT EXISTS subscribers (
+        id SERIAL PRIMARY KEY,
+        email VARCHAR(254) NOT NULL UNIQUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `;
+
     return Response.json({ success: true, message: "Database initialized" });
   } catch (error) {
     console.error("Setup error:", error);

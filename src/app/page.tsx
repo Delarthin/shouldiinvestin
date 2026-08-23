@@ -108,10 +108,86 @@ function TickerMarquee() {
   );
 }
 
+function SignupModal({ onClose }: { onClose: () => void }) {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.trim() || !email.includes("@")) return;
+    setStatus("sending");
+    fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.trim() }),
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error();
+        setStatus("sent");
+      })
+      .catch(() => setStatus("error"));
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-6" onClick={onClose}>
+      <div className="absolute inset-0 bg-foreground/50" />
+      <div className="relative bg-background border border-border p-8 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-4 right-4 font-mono text-muted hover:text-foreground text-lg">
+          &times;
+        </button>
+
+        {status === "sent" ? (
+          <div className="text-center py-4">
+            <div className="font-mono text-sm font-bold mb-2">You&apos;re in.</div>
+            <p className="font-mono text-xs text-muted">We&apos;ll keep you posted on new features and market insights.</p>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <h2 className="text-2xl font-black tracking-tight">Join the crowd.</h2>
+              <p className="mt-2 font-mono text-xs text-muted">
+                Get daily sentiment updates, new AI models, and be the first to know when we add your favorite tickers.
+              </p>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="flex-1 border border-border bg-background px-4 py-3 font-mono text-sm text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  disabled={!email.includes("@") || status === "sending"}
+                  className="px-6 py-3 font-mono text-sm font-bold bg-accent text-white hover:bg-accent/90 transition-colors disabled:opacity-50"
+                >
+                  {status === "sending" ? "..." : "JOIN"}
+                </button>
+              </div>
+              {status === "error" && (
+                <span className="font-mono text-[10px] text-red-500 mt-2 block">Something went wrong. Try again.</span>
+              )}
+            </form>
+
+            <p className="mt-4 font-mono text-[10px] text-muted/60">
+              No spam. Unsubscribe anytime.
+            </p>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Home() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [query, setQuery] = useState("");
+  const [showSignup, setShowSignup] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -174,12 +250,22 @@ export default function Home() {
         <TickerMarquee />
       </form>
 
+      {/* Join CTA */}
+      <button
+        onClick={() => setShowSignup(true)}
+        className="mt-8 px-8 py-3 bg-accent text-white font-mono text-xs font-bold tracking-wider hover:bg-accent/90 transition-colors"
+      >
+        JOIN THE COMMUNITY
+      </button>
+
       {/* Disclaimer */}
       <div className="mt-10 max-w-lg text-center">
         <p className="font-mono text-[10px] text-muted/60">
           All information reflected is based on crowd sentiment. This is not financial advice. Please exercise your own judgement before making investment decisions.
         </p>
       </div>
+
+      {showSignup && <SignupModal onClose={() => setShowSignup(false)} />}
     </main>
   );
 }
