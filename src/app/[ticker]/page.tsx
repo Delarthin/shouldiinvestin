@@ -340,16 +340,16 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
             </button>
 
             {showAiPanel && aiModels.length > 0 && (
-              <div className="mt-3 max-w-md w-full border border-border bg-background">
+              <div className="mt-3 max-w-md w-full border-2 border-foreground/20 bg-background">
                 {aiModels.map((m) => (
-                  <div key={m.model} className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0">
-                    <span className="font-mono text-xs text-muted">{m.model}</span>
-                    <span className={`font-mono text-sm font-black ${m.recommendation === "BUY" ? "text-green-600" : "text-red-500"}`}>
+                  <div key={m.model} className="flex items-center justify-between px-5 py-4 border-b border-foreground/10 last:border-b-0">
+                    <span className="font-mono text-sm font-medium text-foreground">{m.model}</span>
+                    <span className={`font-mono text-base font-black ${m.recommendation === "BUY" ? "text-green-600" : "text-red-500"}`}>
                       {m.recommendation}
                     </span>
                   </div>
                 ))}
-                <div className="px-4 py-2 border-t border-border">
+                <div className="px-5 py-2 border-t border-foreground/10">
                   <span className="font-mono text-[10px] text-muted">AI-generated. Not financial advice.</span>
                 </div>
               </div>
