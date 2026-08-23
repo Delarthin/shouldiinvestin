@@ -67,15 +67,6 @@ async function fetchTicker(ticker: string) {
 }
 
 export async function GET(request: NextRequest) {
-  // Optional: protect cron endpoint with a secret
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
-
   try {
     const results = await Promise.all(TICKERS.map(fetchTicker));
     const tickers = results.filter(Boolean);
