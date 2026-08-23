@@ -25,7 +25,7 @@ export const TICKERS: Record<string, { name: string; description: string }> = {
   CRM: { name: "CRM", description: "Salesforce, Inc." },
   UBER: { name: "UBER", description: "Uber Technologies, Inc." },
   SHOP: { name: "SHOP", description: "Shopify Inc." },
-  SQ: { name: "SQ", description: "Block, Inc." },
+  XYZ: { name: "XYZ", description: "Block, Inc." },
   SNAP: { name: "SNAP", description: "Snap Inc." },
   ROKU: { name: "ROKU", description: "Roku, Inc." },
   PYPL: { name: "PYPL", description: "PayPal Holdings, Inc." },
