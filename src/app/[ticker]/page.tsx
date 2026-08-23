@@ -162,6 +162,101 @@ function AiPanel({ aiModels }: { aiModels: { model: string; recommendation: stri
   );
 }
 
+function BeatSpySection({ symbol, predictionDate }: { symbol: string; predictionDate: string }) {
+  const [vote, setVote] = useState<"yes" | "no" | null>(null);
+  const [locked, setLocked] = useState(false);
+  const storageKey = `siii-beatspy-${symbol}`;
+
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.date === predictionDate) {
+          setVote(parsed.direction);
+          setLocked(true);
+        } else {
+          localStorage.removeItem(storageKey);
+        }
+      } catch { /* ignore */ }
+    }
+  }, [predictionDate, storageKey]);
+
+  function handleLockIn() {
+    if (!vote) return;
+    localStorage.setItem(storageKey, JSON.stringify({
+      direction: vote,
+      date: predictionDate,
+      lockedAt: new Date().toISOString(),
+    }));
+    setLocked(true);
+  }
+
+  return (
+    <div className="mt-8 max-w-md">
+      <div className="mb-3">
+        <span className="font-mono text-xs tracking-wider text-muted">VS THE MARKET</span>
+      </div>
+
+      <div className="mb-3">
+        <span className="font-mono text-sm font-bold">
+          Will {symbol} outperform the S&amp;P 500?
+        </span>
+        <div className="mt-1">
+          <span className="font-mono text-xs text-muted">
+            Predicting close on {formatDate(predictionDate)}
+          </span>
+        </div>
+      </div>
+
+      {locked ? (
+        <div className={`py-4 border text-center ${vote === "yes" ? "bg-green-600 text-white border-green-600" : "bg-red-500 text-white border-red-500"}`}>
+          <div className="font-mono text-sm font-bold">
+            LOCKED: {vote === "yes" ? "YES" : "NO"} — {symbol} {vote === "yes" ? "BEATS" : "WON'T BEAT"} SPY
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              onClick={() => setVote("yes")}
+              className={`py-4 font-mono text-sm font-bold border transition-all flex items-center justify-center gap-2 ${
+                vote === "yes"
+                  ? "bg-green-600 text-white border-green-600"
+                  : "border-border hover:border-green-600 hover:bg-green-600/5"
+              }`}
+            >
+              YES
+            </button>
+            <button
+              onClick={() => setVote("no")}
+              className={`py-4 font-mono text-sm font-bold border transition-all flex items-center justify-center gap-2 ${
+                vote === "no"
+                  ? "bg-red-500 text-white border-red-500"
+                  : "border-border hover:border-red-500 hover:bg-red-500/5"
+              }`}
+            >
+              NO
+            </button>
+          </div>
+
+          <button
+            onClick={handleLockIn}
+            className={`mt-3 w-full py-3 font-mono text-sm font-medium transition-all inline-flex items-center justify-center gap-2 ${
+              vote
+                ? "bg-accent text-white hover:bg-accent/90 cursor-pointer"
+                : "bg-border/50 text-muted cursor-not-allowed"
+            }`}
+            disabled={!vote}
+          >
+            {vote ? `Lock In: ${vote === "yes" ? "YES" : "NO"}` : "Select YES or NO"}
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { tickerData: TickerData; eodDate: string; symbol: string; description: string; spyData: TickerData | null }) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
   const [locked, setLocked] = useState(false);
@@ -425,40 +520,8 @@ function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { ti
 
             </div>
 
-            {/* SPY Comparison — non-SPY tickers only */}
-            {spyData && (
-              <div className="mt-8 max-w-md">
-                <div className="mb-3">
-                  <span className="font-mono text-xs tracking-wider text-muted">VS THE MARKET</span>
-                </div>
-                <div className="border border-border p-5">
-                  <div className="font-mono text-sm font-bold mb-3">
-                    Can {symbol} beat the S&amp;P 500?
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs text-muted">{symbol}</span>
-                    <span className={`font-mono text-sm font-bold ${tickerData.changePct >= 0 ? "text-green-600" : "text-red-500"}`}>
-                      {tickerData.changePct >= 0 ? "+" : ""}{tickerData.changePct.toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-mono text-xs text-muted">SPY</span>
-                    <span className={`font-mono text-sm font-bold ${spyData.changePct >= 0 ? "text-green-600" : "text-red-500"}`}>
-                      {spyData.changePct >= 0 ? "+" : ""}{spyData.changePct.toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className="border-t border-border pt-3">
-                    <span className={`font-mono text-xs font-bold ${tickerData.changePct > spyData.changePct ? "text-green-600" : tickerData.changePct < spyData.changePct ? "text-red-500" : "text-muted"}`}>
-                      {tickerData.changePct > spyData.changePct
-                        ? `${symbol} outperformed SPY by ${(tickerData.changePct - spyData.changePct).toFixed(2)}%`
-                        : tickerData.changePct < spyData.changePct
-                          ? `${symbol} underperformed SPY by ${(spyData.changePct - tickerData.changePct).toFixed(2)}%`
-                          : `${symbol} matched SPY`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* VS THE MARKET — non-SPY tickers only */}
+            {spyData && <BeatSpySection symbol={symbol} predictionDate={predictionDate} />}
 
           </div>
 
