@@ -443,7 +443,7 @@ function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { ti
 
             <p className="mt-6 max-w-lg text-base leading-relaxed text-muted">
               Predictions are scored against end-of-day closing prices.
-              Market closes at 4:00 PM ET, Monday through Friday. Data updates daily after close.
+              Market closes at 4:00 PM ET, Monday through Friday.
             </p>
 
             {/* UP / DOWN prediction */}
