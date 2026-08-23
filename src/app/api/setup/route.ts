@@ -42,6 +42,13 @@ export async function GET() {
     await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_rec_unique ON ai_recommendations (ticker, eod_date, model)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_ai_rec_ticker_date ON ai_recommendations (ticker, eod_date)`;
 
+    // Migrate old BUY/SELL to BULLISH/BEARISH
+    await sql`ALTER TABLE ai_recommendations ALTER COLUMN recommendation TYPE VARCHAR(7)`;
+    await sql`ALTER TABLE ai_recommendations DROP CONSTRAINT IF EXISTS ai_recommendations_recommendation_check`;
+    await sql`UPDATE ai_recommendations SET recommendation = 'BULLISH' WHERE recommendation = 'BUY'`;
+    await sql`UPDATE ai_recommendations SET recommendation = 'BEARISH' WHERE recommendation = 'SELL'`;
+    await sql`ALTER TABLE ai_recommendations ADD CONSTRAINT ai_recommendations_recommendation_check CHECK (recommendation IN ('BULLISH', 'BEARISH'))`;
+
     return Response.json({ success: true, message: "Database initialized" });
   } catch (error) {
     console.error("Setup error:", error);

@@ -289,7 +289,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
               <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
                 <div className="p-8 flex-1">
                   <div className="mb-4">
-                    <span className="font-mono text-xs tracking-widest text-background/50">CALL OF THE DAY</span>
+                    <span className="font-mono text-xs tracking-widest text-background/50">SENTIMENT OF THE DAY</span>
                   </div>
                   <div className="mb-6">
                     <span className="font-mono text-xs tracking-wider text-accent">FOR</span>
@@ -435,7 +435,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
             <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
               <div className="p-10 flex-1">
               <div className="mb-6">
-                <span className="font-mono text-xs tracking-widest text-background/50">CALL OF THE DAY</span>
+                <span className="font-mono text-xs tracking-widest text-background/50">SENTIMENT OF THE DAY</span>
               </div>
 
               <div className="mb-8">
