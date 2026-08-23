@@ -77,7 +77,6 @@ export async function GET(request: NextRequest) {
       .join("\n");
 
     const results: { ticker: string; model: string; recommendation: string; status: string }[] = [];
-    const failed: { ticker: string; model: typeof AI_MODELS[number] }[] = [];
 
     async function generateOne(symbol: string, model: typeof AI_MODELS[number], tickerData: TickerData) {
       const existing = await sql`
@@ -120,7 +119,7 @@ Base your analysis on the provided end-of-day market data. Consider momentum, se
       results.push({ ticker: symbol, model: model.label, recommendation: parsed.recommendation, status: "created" });
     }
 
-    // First pass: all tickers × all models
+    // Process all tickers — 3 models in parallel per ticker
     for (const symbol of TICKER_SLUGS) {
       const tickerData = eodData.tickers.find((t) => t.ticker === symbol);
       if (!tickerData) {
@@ -128,31 +127,16 @@ Base your analysis on the provided end-of-day market data. Consider momentum, se
         continue;
       }
 
-      for (const model of AI_MODELS) {
-        try {
-          await generateOne(symbol, model, tickerData);
-        } catch (err) {
-          console.error(`Error ${model.label} for ${symbol}:`, err);
-          failed.push({ ticker: symbol, model });
-        }
-      }
-    }
+      const modelResults = await Promise.allSettled(
+        AI_MODELS.map((model) => generateOne(symbol, model, tickerData))
+      );
 
-    // Retry failed after 3 minutes
-    if (failed.length > 0) {
-      console.log(`Retrying ${failed.length} failed calls after 3 min`);
-      await new Promise((resolve) => setTimeout(resolve, 180000));
-
-      for (const { ticker: symbol, model } of failed) {
-        const tickerData = eodData.tickers.find((t) => t.ticker === symbol);
-        if (!tickerData) continue;
-        try {
-          await generateOne(symbol, model, tickerData);
-        } catch (err) {
-          console.error(`Retry failed ${model.label} for ${symbol}:`, err);
-          results.push({ ticker: symbol, model: model.label, recommendation: "", status: "error" });
+      modelResults.forEach((result, i) => {
+        if (result.status === "rejected") {
+          console.error(`Error ${AI_MODELS[i].label} for ${symbol}:`, result.reason);
+          results.push({ ticker: symbol, model: AI_MODELS[i].label, recommendation: "", status: "error" });
         }
-      }
+      });
     }
 
     return Response.json({ status: "done", results });
