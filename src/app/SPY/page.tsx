@@ -200,10 +200,36 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
               </span>
             </div>
 
-            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted">
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted lg:block hidden">
               Predictions are scored against end-of-day closing prices.
               Market closes at 4:00 PM ET, Monday through Friday. Data updates daily after close.
             </p>
+
+            {/* Call of the Day card - mobile only */}
+            <div className="mt-8 lg:hidden">
+              <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
+                <div className="p-8 flex-1">
+                  <div className="mb-4">
+                    <span className="font-mono text-xs tracking-widest text-background/50">CALL OF THE DAY</span>
+                  </div>
+                  <div className="mb-6">
+                    <span className="font-mono text-xs tracking-wider text-accent">FOR</span>
+                    <div className="text-2xl font-black tracking-tight">{formatDate(predictionDate)}</div>
+                  </div>
+                  <div className="mb-4">
+                    <span className={`text-6xl font-black tracking-tight leading-none ${upPct >= 50 ? "text-green-500" : "text-red-400"}`}>
+                      {upPct >= 50 ? "BUY" : "SELL"}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-mono text-sm tracking-wide text-background/50">SPY &middot; SPDR S&amp;P 500</span>
+                  </div>
+                </div>
+                <div className="border-t border-background/10 px-8 py-3">
+                  <span className="font-mono text-[10px] text-background/30">Not financial advice.</span>
+                </div>
+              </div>
+            </div>
 
             {/* Simplified UP / DOWN prediction */}
             <div id="prediction" className="mt-10 max-w-md">
@@ -283,7 +309,7 @@ function HeroSection({ spy, eodDate }: { spy: TickerData; eodDate: string }) {
             </div>
           </div>
 
-          {/* Right column - Call of the Day card */}
+          {/* Right column - Call of the Day card (desktop only) */}
           <div className="relative hidden lg:flex items-center justify-center">
             <div className="w-full border border-border bg-gradient-to-br from-foreground to-foreground/90 text-background flex flex-col">
               <div className="p-10 flex-1">
