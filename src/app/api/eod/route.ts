@@ -4,6 +4,9 @@ const TICKERS = [
   "SPY", "VOO", "QQQ", "IVV", "VTI", "DIA", "IWM",
   "NVDA", "AAPL", "MSFT", "META", "AMZN", "TSLA", "AMD", "PLTR", "GOOG",
   "GOOGL", "SOFI", "COIN", "NIO", "RIVN", "JPM", "V", "DIS", "NFLX",
+  "CRM", "UBER", "SHOP", "SQ", "SNAP", "ROKU", "PYPL",
+  "WMT", "KO", "PEP", "COST", "BA", "XOM", "JNJ",
+  "GME", "AMC", "LCID", "MARA", "ARM", "SMCI",
 ];
 
 interface ChartResponse {
