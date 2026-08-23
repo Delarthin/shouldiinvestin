@@ -200,7 +200,7 @@ function BeatSpySection({ symbol, predictionDate }: { symbol: string; prediction
 
       <div className="mb-3">
         <span className="font-mono text-sm font-bold">
-          Will {symbol} outperform the S&amp;P 500?
+          Will {symbol} outperform the S&amp;P 500 (SPY) in terms of percentage increase?
         </span>
         <div className="mt-1">
           <span className="font-mono text-xs text-muted">
@@ -454,8 +454,8 @@ function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { ti
                     MAKE YOUR CALL
                   </span>
                 </div>
-                <span className="font-mono text-xs text-muted">
-                  Predicting close on {formatDate(predictionDate)}
+                <span className="font-mono text-sm font-bold mt-1">
+                  Will {symbol}&apos;s close price on {formatDate(predictionDate)} be higher than the previous day&apos;s?
                 </span>
               </div>
 
