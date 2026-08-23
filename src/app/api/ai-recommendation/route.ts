@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         ON CONFLICT DO NOTHING
       `;
 
-      results.push({ ticker: symbol, model: model.label, recommendation: parsed.recommendation, status: "created" });
+      results.push({ ticker: symbol, model: model.label, recommendation, status: "created" });
     }
 
     // Process all tickers — 3 models in parallel per ticker
