@@ -1,6 +1,9 @@
 export const TICKERS: Record<string, { name: string; description: string }> = {
   SPY: { name: "SPY", description: "SPDR S&P 500 ETF Trust" },
   QQQ: { name: "QQQ", description: "Invesco QQQ Trust (Nasdaq 100)" },
+  VOO: { name: "VOO", description: "Vanguard S&P 500 ETF" },
+  VTI: { name: "VTI", description: "Vanguard Total Stock Market ETF" },
+  IWM: { name: "IWM", description: "iShares Russell 2000 ETF" },
   TSLA: { name: "TSLA", description: "Tesla, Inc." },
   NVDA: { name: "NVDA", description: "NVIDIA Corporation" },
   AAPL: { name: "AAPL", description: "Apple Inc." },
@@ -8,7 +11,17 @@ export const TICKERS: Record<string, { name: string; description: string }> = {
   MSFT: { name: "MSFT", description: "Microsoft Corporation" },
   META: { name: "META", description: "Meta Platforms, Inc." },
   GOOG: { name: "GOOG", description: "Alphabet Inc." },
+  GOOGL: { name: "GOOGL", description: "Alphabet Inc. (Class A)" },
   AMD: { name: "AMD", description: "Advanced Micro Devices, Inc." },
+  PLTR: { name: "PLTR", description: "Palantir Technologies Inc." },
+  SOFI: { name: "SOFI", description: "SoFi Technologies, Inc." },
+  COIN: { name: "COIN", description: "Coinbase Global, Inc." },
+  NIO: { name: "NIO", description: "NIO Inc." },
+  RIVN: { name: "RIVN", description: "Rivian Automotive, Inc." },
+  JPM: { name: "JPM", description: "JPMorgan Chase & Co." },
+  V: { name: "V", description: "Visa Inc." },
+  DIS: { name: "DIS", description: "The Walt Disney Company" },
+  NFLX: { name: "NFLX", description: "Netflix, Inc." },
 };
 
 export const TICKER_SLUGS = Object.keys(TICKERS);

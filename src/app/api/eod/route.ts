@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 const TICKERS = [
   "SPY", "VOO", "QQQ", "IVV", "VTI", "DIA", "IWM",
   "NVDA", "AAPL", "MSFT", "META", "AMZN", "TSLA", "AMD", "PLTR", "GOOG",
+  "GOOGL", "SOFI", "COIN", "NIO", "RIVN", "JPM", "V", "DIS", "NFLX",
 ];
 
 interface ChartResponse {
