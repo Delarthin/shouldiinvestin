@@ -91,28 +91,20 @@ export async function GET(request: NextRequest) {
         model: model.id,
         messages: [
           {
-            role: "system",
-            content: `You are a market analyst providing a daily BUY or SELL recommendation for ${symbol} for the next trading day. You must respond with valid JSON only, no markdown. Use this exact format:
-{"recommendation": "BUY" or "SELL", "reasoning": "2-3 sentence explanation"}
-
-Base your analysis on the provided end-of-day market data. Consider momentum, sector performance, and risk signals. Be concise and direct.`,
-          },
-          {
             role: "user",
-            content: `End-of-day market data for ${tickerData.date}:\n\n${marketSummary}\n\n${symbol} closed at $${tickerData.close}, ${tickerData.changePct >= 0 ? "up" : "down"} ${Math.abs(tickerData.changePct)}% from the previous close.\n\nProvide your BUY or SELL recommendation for ${symbol} for the next trading day.`,
+            content: `${marketSummary}\n\n${symbol} closed at $${tickerData.close} (${tickerData.changePct >= 0 ? "+" : ""}${tickerData.changePct}%). Reply with only BUY or SELL for ${symbol} next trading day.`,
           },
         ],
         temperature: 0.3,
+        max_tokens: 5,
       });
 
-      const content = completion.choices[0]?.message?.content?.trim();
-      if (!content) throw new Error("No response");
-
-      const parsed = JSON.parse(content);
+      const content = completion.choices[0]?.message?.content?.trim().toUpperCase() || "";
+      const recommendation = content.includes("BUY") ? "BUY" : "SELL";
 
       await sql`
         INSERT INTO ai_recommendations (ticker, eod_date, recommendation, reasoning, close_price, model)
-        VALUES (${symbol}, ${tickerData.date}, ${parsed.recommendation}, ${parsed.reasoning}, ${tickerData.close}, ${model.label})
+        VALUES (${symbol}, ${tickerData.date}, ${recommendation}, '', ${tickerData.close}, ${model.label})
         ON CONFLICT DO NOTHING
       `;
 
