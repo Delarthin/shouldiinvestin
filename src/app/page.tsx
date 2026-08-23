@@ -145,7 +145,16 @@ export default function Home() {
         <span className="text-accent">?</span>
       </h1>
 
-      <form onSubmit={handleSubmit} className="mt-10 w-full max-w-md">
+      {/* Value props */}
+      <div className="mt-6 flex items-center gap-4 font-mono text-xs text-muted">
+        <span>Crowd sentiment</span>
+        <span className="text-border">·</span>
+        <span>AI agent predictions</span>
+        <span className="text-border">·</span>
+        <span>Market fundamentals</span>
+      </div>
+
+      <form onSubmit={handleSubmit} className="mt-8 w-full max-w-md">
         <div className="relative">
           <input
             ref={inputRef}
@@ -164,6 +173,13 @@ export default function Home() {
         </div>
         <TickerMarquee />
       </form>
+
+      {/* Disclaimer */}
+      <div className="mt-10 max-w-lg text-center">
+        <p className="font-mono text-[10px] text-muted/60">
+          All information reflected is based on crowd sentiment and AI-generated predictions. This is not financial advice. Please exercise your own judgement before making investment decisions.
+        </p>
+      </div>
     </main>
   );
 }
