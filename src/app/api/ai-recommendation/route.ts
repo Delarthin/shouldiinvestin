@@ -47,7 +47,16 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Cron mode: no params — generate recommendations for ALL tickers
+  // Cron mode: no date/ticker params — generate recommendations for ALL tickers
+  // Protected by CRON_SECRET
+  const cronSecret = process.env.CRON_SECRET;
+  if (cronSecret) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+  }
+
   try {
     const baseUrl = request.nextUrl.origin;
     const eodRes = await fetch(`${baseUrl}/api/eod`, { next: { revalidate: 0 } });
@@ -67,7 +76,6 @@ export async function GET(request: NextRequest) {
         continue;
       }
 
-      // Skip if already exists
       const existing = await sql`
         SELECT id FROM ai_recommendations WHERE ticker = ${symbol} AND eod_date = ${tickerData.date} LIMIT 1
       `;

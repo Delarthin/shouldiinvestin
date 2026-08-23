@@ -108,6 +108,7 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
   const [locked, setLocked] = useState(false);
   const [up, setUp] = useState(0);
   const [down, setDown] = useState(0);
+  const [aiCall, setAiCall] = useState<"BUY" | "SELL" | null>(null);
   const predictionDate = nextTradingDay(eodDate);
   const total = up + down;
   const upPct = total > 0 ? Math.round((up / total) * 100) : 50;
@@ -137,6 +138,12 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
           setLocked(true);
         }
       })
+      .catch(() => {});
+
+    // Fetch GPT's recommendation
+    fetch(`/api/ai-recommendation?date=${eodDate}&ticker=${symbol}`)
+      .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
+      .then((data) => { setAiCall(data.recommendation); })
       .catch(() => {});
   }, [eodDate, predictionDate, symbol, storageKey]);
 
@@ -208,8 +215,8 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
                     <div className="text-2xl font-black tracking-tight">{formatDate(predictionDate)}</div>
                   </div>
                   <div className="mb-4">
-                    <span className={`text-6xl font-black tracking-tight leading-none ${upPct >= 50 ? "text-green-500" : "text-red-400"}`}>
-                      {upPct >= 50 ? "BUY" : "SELL"}
+                    <span className={`text-6xl font-black tracking-tight leading-none ${(aiCall || (upPct >= 50 ? "BUY" : "SELL")) === "BUY" ? "text-green-500" : "text-red-400"}`}>
+                      {aiCall || (upPct >= 50 ? "BUY" : "SELL")}
                     </span>
                   </div>
                   <div>
@@ -319,8 +326,8 @@ function HeroSection({ tickerData, eodDate, symbol, description }: { tickerData:
               </div>
 
               <div className="mb-6">
-                <span className={`text-8xl font-black tracking-tight leading-none ${upPct >= 50 ? "text-green-500" : "text-red-400"}`}>
-                  {upPct >= 50 ? "BUY" : "SELL"}
+                <span className={`text-8xl font-black tracking-tight leading-none ${(aiCall || (upPct >= 50 ? "BUY" : "SELL")) === "BUY" ? "text-green-500" : "text-red-400"}`}>
+                  {aiCall || (upPct >= 50 ? "BUY" : "SELL")}
                 </span>
               </div>
 
