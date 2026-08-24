@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { TICKERS } from "@/lib/tickers";
+import { nextTradingDay } from "@/lib/market";
 import styles from "./ticker.module.css";
 
 /* ───────────────────── Types ───────────────────── */
@@ -94,14 +95,6 @@ function TickerTape({ tickers }: { tickers: TickerData[] }) {
 }
 
 /* ───────────────────── Hero Section ───────────────────── */
-
-function nextTradingDay(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
-  do {
-    d.setDate(d.getDate() + 1);
-  } while (d.getDay() === 0 || d.getDay() === 6);
-  return d.toISOString().split("T")[0];
-}
 
 const ALL_MODELS = [
   { label: "gpt-4o-mini", display: "GPT-4o Mini" },

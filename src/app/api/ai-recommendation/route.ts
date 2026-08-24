@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import sql from "@/lib/db";
 import OpenAI from "openai";
 import { TICKER_SLUGS } from "@/lib/tickers";
+import { isMarketOpen, todayET } from "@/lib/market";
 
 const openrouter = new OpenAI({
   apiKey: process.env.OPENROUTER_KEY,
@@ -67,6 +68,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Skip if today is not a market day (weekend or holiday)
+    const today = todayET();
+    if (!isMarketOpen(today)) {
+      return Response.json({ status: "skipped", reason: "Market closed today", date: today });
+    }
+
     const baseUrl = request.nextUrl.origin;
     const eodRes = await fetch(`${baseUrl}/api/eod`, { next: { revalidate: 0 } });
     if (!eodRes.ok) throw new Error("Failed to fetch EOD data");
