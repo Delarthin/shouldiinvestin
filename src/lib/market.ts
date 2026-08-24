@@ -49,3 +49,25 @@ export function nextTradingDay(dateStr: string): string {
 export function todayET(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 }
+
+export function isMarketClosedET(): boolean {
+  const now = new Date();
+  const etHour = parseInt(now.toLocaleString("en-US", { timeZone: "America/New_York", hour: "numeric", hour12: false }));
+  return etHour >= 16;
+}
+
+// Returns the date the prediction is FOR:
+// - If market is still open today → today's date
+// - If market has closed today → next trading day
+export function predictionTargetDate(eodDate: string): string {
+  const today = todayET();
+  const todayIsMarketDay = isMarketOpen(today);
+
+  if (todayIsMarketDay && !isMarketClosedET()) {
+    // Market is open right now — prediction is for today
+    return today;
+  }
+
+  // Market has closed or it's a non-market day — prediction is for next trading day
+  return nextTradingDay(eodDate);
+}

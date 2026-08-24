@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { TICKERS } from "@/lib/tickers";
-import { nextTradingDay } from "@/lib/market";
+import { nextTradingDay, predictionTargetDate } from "@/lib/market";
 import styles from "./ticker.module.css";
 
 /* ───────────────────── Types ───────────────────── */
@@ -253,7 +253,7 @@ function HeroSection({ tickerData, eodDate, symbol, description, spyData }: { ti
   const [aiCall, setAiCall] = useState<"BULLISH" | "BEARISH" | null>(null);
   const [aiModels, setAiModels] = useState<{ model: string; recommendation: string; reasoning: string }[]>([]);
   const [showAiPanel, setShowAiPanel] = useState(false);
-  const predictionDate = nextTradingDay(eodDate);
+  const predictionDate = predictionTargetDate(eodDate);
   const total = up + down;
   const upPct = total > 0 ? Math.round((up / total) * 100) : 50;
   const storageKey = `siii-prediction-${symbol}`;
